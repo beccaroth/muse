@@ -16,7 +16,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import { ProgressBar } from './ProgressBar';
-import { STATUS_COLORS, TYPE_COLORS } from '@/lib/constants';
+import { StatusDot } from './StatusDot';
+import { getTypeColor } from '@/lib/constants';
 import { useViewStore } from '@/stores/viewStore';
 import { useDeleteProject } from '@/hooks/useProjects';
 import type { Project } from '@/types';
@@ -65,9 +66,10 @@ export function ProjectTable({ projects, isLoading }: ProjectTableProps) {
             <TableRow key={project.id}>
               <TableCell className="font-medium">{project.project_name}</TableCell>
               <TableCell>
-                <Badge variant="outline" className={cn('text-xs', STATUS_COLORS[project.status])}>
-                  {project.status}
-                </Badge>
+                <span className="flex items-center gap-2">
+                  <StatusDot status={project.status} />
+                  <span className="text-sm">{project.status}</span>
+                </span>
               </TableCell>
               <TableCell>
                 <Badge variant="secondary" className="text-xs">
@@ -77,19 +79,14 @@ export function ProjectTable({ projects, isLoading }: ProjectTableProps) {
               <TableCell>
                 <div className="flex flex-wrap gap-1">
                   {project.project_types.map((type) => (
-                    <Badge key={type} variant="outline" className={cn('text-xs', TYPE_COLORS[type])}>
+                    <Badge key={type} variant="outline" className={cn('text-xs', getTypeColor(type))}>
                       {type}
                     </Badge>
                   ))}
                 </div>
               </TableCell>
               <TableCell className="w-32">
-                <ProgressBar
-                  value={project.start_value}
-                  max={project.end_value}
-                  current={project.current_value}
-                  showLabel
-                />
+                <ProgressBar progress={project.progress} showLabel />
               </TableCell>
               <TableCell>
                 <DropdownMenu>

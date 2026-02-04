@@ -1,10 +1,17 @@
 import { create } from 'zustand';
 
 type ViewType = 'table' | 'kanban';
+type KanbanGroupBy = 'priority' | 'status';
 
 interface ViewState {
   projectsView: ViewType;
   setProjectsView: (view: ViewType) => void;
+  kanbanGroupBy: KanbanGroupBy;
+  setKanbanGroupBy: (groupBy: KanbanGroupBy) => void;
+  showDoneColumn: boolean;
+  setShowDoneColumn: (show: boolean) => void;
+  showSeeds: boolean;
+  setShowSeeds: (show: boolean) => void;
   selectedProjectId: string | null;
   setSelectedProjectId: (id: string | null) => void;
   isProjectFormOpen: boolean;
@@ -20,6 +27,12 @@ interface ViewState {
 export const useViewStore = create<ViewState>((set) => ({
   projectsView: 'kanban',
   setProjectsView: (view) => set({ projectsView: view }),
+  kanbanGroupBy: 'priority',
+  setKanbanGroupBy: (groupBy) => set({ kanbanGroupBy: groupBy }),
+  showDoneColumn: false,
+  setShowDoneColumn: (show) => set({ showDoneColumn: show }),
+  showSeeds: true,
+  setShowSeeds: (show) => set({ showSeeds: show }),
   selectedProjectId: null,
   setSelectedProjectId: (id) => set({ selectedProjectId: id }),
   isProjectFormOpen: false,

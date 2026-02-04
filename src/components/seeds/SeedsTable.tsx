@@ -17,7 +17,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal, Pencil, Trash2, ArrowRight } from 'lucide-react';
-import { TYPE_COLORS } from '@/lib/constants';
+import { getTypeColor } from '@/lib/constants';
 import { useViewStore } from '@/stores/viewStore';
 import { useDeleteSeed } from '@/hooks/useSeeds';
 import { useCreateProject } from '@/hooks/useProjects';
@@ -43,9 +43,7 @@ export function SeedsTable({ seeds, isLoading }: SeedsTableProps) {
         project_types: seed.project_type ? [seed.project_type] : [],
         status: 'Not started',
         priority: 'Someday',
-        start_value: 0,
-        end_value: 100,
-        current_value: 0,
+        progress: 0,
         start_date: null,
         end_date: null,
       });
@@ -98,7 +96,7 @@ export function SeedsTable({ seeds, isLoading }: SeedsTableProps) {
               </TableCell>
               <TableCell>
                 {seed.project_type && (
-                  <Badge variant="outline" className={cn('text-xs', TYPE_COLORS[seed.project_type])}>
+                  <Badge variant="outline" className={cn('text-xs', getTypeColor(seed.project_type))}>
                     {seed.project_type}
                   </Badge>
                 )}

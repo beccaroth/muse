@@ -1,34 +1,34 @@
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- Create custom types for enums
+-- Create custom types for enums (status and priority are fixed, types are extensible)
 CREATE TYPE project_status AS ENUM ('Not started', 'On hold', 'In progress', 'Done');
 CREATE TYPE project_priority AS ENUM ('Now', 'Next', 'Someday');
-CREATE TYPE project_type AS ENUM ('App', 'Animation', 'Comic', 'Screenplay', 'Other', 'Short Film');
 
 -- Projects table
+-- Note: project_types is TEXT[] to allow custom types (not enum)
+-- progress is a simple percentage (0-100) instead of start/end/current values
 CREATE TABLE projects (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     project_name TEXT NOT NULL,
     status project_status NOT NULL DEFAULT 'Not started',
     priority project_priority NOT NULL DEFAULT 'Someday',
-    project_types project_type[] DEFAULT '{}',
+    project_types TEXT[] DEFAULT '{}',
     description TEXT,
     start_date DATE,
     end_date DATE,
-    start_value NUMERIC DEFAULT 0,
-    end_value NUMERIC DEFAULT 100,
-    current_value NUMERIC DEFAULT 0,
+    progress INTEGER DEFAULT 0 CHECK (progress >= 0 AND progress <= 100),
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- Seeds table (inbox for ideas)
+-- Note: project_type is TEXT to allow custom types
 CREATE TABLE seeds (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     title TEXT NOT NULL,
     description TEXT,
-    project_type project_type,
+    project_type TEXT,
     date_added DATE DEFAULT CURRENT_DATE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()

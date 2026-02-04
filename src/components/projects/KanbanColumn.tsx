@@ -1,19 +1,28 @@
 import { useDroppable } from '@dnd-kit/core';
 import { KanbanCard } from './KanbanCard';
-import { PRIORITY_COLORS } from '@/lib/constants';
+import { PRIORITY_COLORS, STATUS_DOT_COLORS } from '@/lib/constants';
 import type { Project } from '@/types';
-import type { ProjectPriority } from '@/lib/constants';
+import type { ProjectPriority, ProjectStatus } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 
 interface KanbanColumnProps {
-  priority: ProjectPriority;
+  id: string;
+  title: string;
   projects: Project[];
+  colorType: 'priority' | 'status';
 }
 
-export function KanbanColumn({ priority, projects }: KanbanColumnProps) {
+export function KanbanColumn({ id, title, projects, colorType }: KanbanColumnProps) {
   const { setNodeRef, isOver } = useDroppable({
-    id: priority,
+    id,
   });
+
+  const getDotColor = () => {
+    if (colorType === 'priority') {
+      return PRIORITY_COLORS[title as ProjectPriority] || 'bg-gray-500';
+    }
+    return STATUS_DOT_COLORS[title as ProjectStatus] || 'bg-gray-500';
+  };
 
   return (
     <div
@@ -24,8 +33,8 @@ export function KanbanColumn({ priority, projects }: KanbanColumnProps) {
       )}
     >
       <div className="flex items-center gap-2 mb-3">
-        <div className={cn('w-3 h-3 rounded-full', PRIORITY_COLORS[priority])} />
-        <h3 className="font-medium text-sm">{priority}</h3>
+        <div className={cn('w-3 h-3 rounded-full', getDotColor())} />
+        <h3 className="font-medium text-sm">{title}</h3>
         <span className="text-xs text-muted-foreground ml-auto">{projects.length}</span>
       </div>
       <div className="flex flex-col gap-2 flex-1">

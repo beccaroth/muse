@@ -9,9 +9,7 @@ export interface Project {
   description: string | null;
   start_date: string | null;
   end_date: string | null;
-  start_value: number;
-  end_value: number;
-  current_value: number;
+  progress: number;
   created_at: string;
   updated_at: string;
 }

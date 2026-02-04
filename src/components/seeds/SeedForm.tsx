@@ -20,14 +20,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { PROJECT_TYPES } from '@/lib/constants';
+import { DEFAULT_PROJECT_TYPES } from '@/lib/constants';
 import { useSeed, useCreateSeed, useUpdateSeed } from '@/hooks/useSeeds';
-import type { ProjectType } from '@/lib/constants';
 
 const seedSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   description: z.string().nullable(),
-  project_type: z.enum(PROJECT_TYPES).nullable(),
+  project_type: z.string().nullable(),
   date_added: z.string(),
 });
 
@@ -110,13 +109,13 @@ export function SeedForm({ open, onOpenChange, seedId }: SeedFormProps) {
               <Label>Project Type</Label>
               <Select
                 value={watch('project_type') ?? ''}
-                onValueChange={(v) => setValue('project_type', v as ProjectType)}
+                onValueChange={(v) => setValue('project_type', v)}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select type (optional)" />
                 </SelectTrigger>
                 <SelectContent>
-                  {PROJECT_TYPES.map((type) => (
+                  {DEFAULT_PROJECT_TYPES.map((type) => (
                     <SelectItem key={type} value={type}>
                       {type}
                     </SelectItem>

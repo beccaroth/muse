@@ -1,7 +1,8 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { X, Plus } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -13,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
 import {
   Select,
   SelectContent,
@@ -20,19 +22,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { PROJECT_STATUSES, PROJECT_PRIORITIES, PROJECT_TYPES } from '@/lib/constants';
+import { PROJECT_STATUSES, PROJECT_PRIORITIES, DEFAULT_PROJECT_TYPES } from '@/lib/constants';
 import { useProject, useCreateProject, useUpdateProject } from '@/hooks/useProjects';
-import type { ProjectStatus, ProjectPriority, ProjectType } from '@/lib/constants';
+import { StatusDot } from './StatusDot';
+import type { ProjectStatus, ProjectPriority } from '@/lib/constants';
 
 const projectSchema = z.object({
   project_name: z.string().min(1, 'Name is required'),
   status: z.enum(PROJECT_STATUSES),
   priority: z.enum(PROJECT_PRIORITIES),
-  project_types: z.array(z.enum(PROJECT_TYPES)),
+  project_types: z.array(z.string()),
   description: z.string().nullable(),
-  start_value: z.coerce.number().min(0),
-  end_value: z.coerce.number().min(0),
-  current_value: z.coerce.number().min(0),
+  progress: z.coerce.number().min(0).max(100),
   start_date: z.string().nullable(),
   end_date: z.string().nullable(),
 });
@@ -50,6 +51,7 @@ export function ProjectForm({ open, onOpenChange, projectId }: ProjectFormProps)
   const createProject = useCreateProject();
   const updateProject = useUpdateProject();
   const isEditing = !!projectId;
+  const [newType, setNewType] = useState('');
 
   const {
     register,
@@ -66,9 +68,7 @@ export function ProjectForm({ open, onOpenChange, projectId }: ProjectFormProps)
       priority: 'Someday',
       project_types: [],
       description: null,
-      start_value: 0,
-      end_value: 100,
-      current_value: 0,
+      progress: 0,
       start_date: null,
       end_date: null,
     },
@@ -84,9 +84,7 @@ export function ProjectForm({ open, onOpenChange, projectId }: ProjectFormProps)
         priority: project.priority,
         project_types: project.project_types,
         description: project.description,
-        start_value: project.start_value,
-        end_value: project.end_value,
-        current_value: project.current_value,
+        progress: project.progress,
         start_date: project.start_date,
         end_date: project.end_date,
       });
@@ -97,9 +95,7 @@ export function ProjectForm({ open, onOpenChange, projectId }: ProjectFormProps)
         priority: 'Someday',
         project_types: [],
         description: null,
-        start_value: 0,
-        end_value: 100,
-        current_value: 0,
+        progress: 0,
         start_date: null,
         end_date: null,
       });
@@ -115,13 +111,24 @@ export function ProjectForm({ open, onOpenChange, projectId }: ProjectFormProps)
     onOpenChange(false);
   };
 
-  const toggleType = (type: ProjectType) => {
+  const toggleType = (type: string) => {
     const current = selectedTypes || [];
     if (current.includes(type)) {
       setValue('project_types', current.filter((t) => t !== type));
     } else {
       setValue('project_types', [...current, type]);
     }
+  };
+
+  const addCustomType = () => {
+    if (newType.trim() && !selectedTypes?.includes(newType.trim())) {
+      setValue('project_types', [...(selectedTypes || []), newType.trim()]);
+      setNewType('');
+    }
+  };
+
+  const removeType = (type: string) => {
+    setValue('project_types', (selectedTypes || []).filter((t) => t !== type));
   };
 
   return (
@@ -154,7 +161,10 @@ export function ProjectForm({ open, onOpenChange, projectId }: ProjectFormProps)
                   <SelectContent>
                     {PROJECT_STATUSES.map((status) => (
                       <SelectItem key={status} value={status}>
-                        {status}
+                        <span className="flex items-center gap-2">
+                          <StatusDot status={status} />
+                          {status}
+                        </span>
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -183,8 +193,8 @@ export function ProjectForm({ open, onOpenChange, projectId }: ProjectFormProps)
 
             <div className="grid gap-2">
               <Label>Project Types</Label>
-              <div className="flex flex-wrap gap-2">
-                {PROJECT_TYPES.map((type) => (
+              <div className="flex flex-wrap gap-2 mb-2">
+                {DEFAULT_PROJECT_TYPES.map((type) => (
                   <Button
                     key={type}
                     type="button"
@@ -196,6 +206,38 @@ export function ProjectForm({ open, onOpenChange, projectId }: ProjectFormProps)
                   </Button>
                 ))}
               </div>
+              {selectedTypes && selectedTypes.length > 0 && (
+                <div className="flex flex-wrap gap-1 mb-2">
+                  {selectedTypes.map((type) => (
+                    <Badge key={type} variant="secondary" className="gap-1">
+                      {type}
+                      <button
+                        type="button"
+                        onClick={() => removeType(type)}
+                        className="ml-1 hover:text-destructive"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+              )}
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Add custom type..."
+                  value={newType}
+                  onChange={(e) => setNewType(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      addCustomType();
+                    }
+                  }}
+                />
+                <Button type="button" variant="outline" size="icon" onClick={addCustomType}>
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
 
             <div className="grid gap-2">
@@ -203,19 +245,16 @@ export function ProjectForm({ open, onOpenChange, projectId }: ProjectFormProps)
               <Textarea id="description" {...register('description')} rows={3} />
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="start_value">Start</Label>
-                <Input id="start_value" type="number" {...register('start_value')} />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="current_value">Current</Label>
-                <Input id="current_value" type="number" {...register('current_value')} />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="end_value">End</Label>
-                <Input id="end_value" type="number" {...register('end_value')} />
-              </div>
+            <div className="grid gap-2">
+              <Label htmlFor="progress">Progress ({watch('progress') || 0}%)</Label>
+              <Input
+                id="progress"
+                type="range"
+                min="0"
+                max="100"
+                {...register('progress')}
+                className="h-2 cursor-pointer"
+              />
             </div>
           </div>
 

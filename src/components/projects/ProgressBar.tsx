@@ -1,16 +1,13 @@
 import { cn } from '@/lib/utils';
 
 interface ProgressBarProps {
-  value: number;
-  max: number;
-  current: number;
+  progress: number;
   className?: string;
   showLabel?: boolean;
 }
 
-export function ProgressBar({ value, max, current, className, showLabel = false }: ProgressBarProps) {
-  const percentage = max > value ? Math.round(((current - value) / (max - value)) * 100) : 0;
-  const clampedPercentage = Math.max(0, Math.min(100, percentage));
+export function ProgressBar({ progress, className, showLabel = false }: ProgressBarProps) {
+  const clampedProgress = Math.max(0, Math.min(100, progress));
 
   return (
     <div className={cn('flex items-center gap-2', className)}>
@@ -18,13 +15,13 @@ export function ProgressBar({ value, max, current, className, showLabel = false 
         <div
           className={cn(
             'h-full rounded-full transition-all duration-300',
-            clampedPercentage === 100 ? 'bg-green-500' : 'bg-blue-500'
+            clampedProgress === 100 ? 'bg-green-500' : 'bg-primary'
           )}
-          style={{ width: `${clampedPercentage}%` }}
+          style={{ width: `${clampedProgress}%` }}
         />
       </div>
       {showLabel && (
-        <span className="text-xs text-muted-foreground min-w-[3ch]">{clampedPercentage}%</span>
+        <span className="text-xs text-muted-foreground min-w-[3ch]">{clampedProgress}%</span>
       )}
     </div>
   );

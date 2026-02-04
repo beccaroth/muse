@@ -3,7 +3,8 @@ import { CSS } from '@dnd-kit/utilities';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ProgressBar } from './ProgressBar';
-import { STATUS_COLORS, TYPE_COLORS } from '@/lib/constants';
+import { StatusDot } from './StatusDot';
+import { getTypeColor } from '@/lib/constants';
 import { useViewStore } from '@/stores/viewStore';
 import type { Project } from '@/types';
 import { cn } from '@/lib/utils';
@@ -41,11 +42,12 @@ export function KanbanCard({ project, isDragging }: KanbanCardProps) {
         <div className="flex flex-col gap-2">
           <h4 className="font-medium text-sm line-clamp-2">{project.project_name}</h4>
           <div className="flex items-center gap-1 flex-wrap">
-            <Badge variant="outline" className={cn('text-xs', STATUS_COLORS[project.status])}>
+            <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <StatusDot status={project.status} />
               {project.status}
-            </Badge>
+            </span>
             {project.project_types.slice(0, 2).map((type) => (
-              <Badge key={type} variant="outline" className={cn('text-xs', TYPE_COLORS[type])}>
+              <Badge key={type} variant="outline" className={cn('text-xs', getTypeColor(type))}>
                 {type}
               </Badge>
             ))}
@@ -55,12 +57,7 @@ export function KanbanCard({ project, isDragging }: KanbanCardProps) {
               </Badge>
             )}
           </div>
-          <ProgressBar
-            value={project.start_value}
-            max={project.end_value}
-            current={project.current_value}
-            showLabel
-          />
+          <ProgressBar progress={project.progress} showLabel />
         </div>
       </CardContent>
     </Card>
