@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router';
-import { Palette, Lightbulb, Monitor, Moon, Sun } from 'lucide-react';
+import { Palette, Lightbulb, Monitor, Moon, Sun, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -11,9 +11,10 @@ import {
 import { useViewStore } from '@/stores/viewStore';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';
+import { AddNewModal } from './AddNewModal';
 
 export function Header() {
-  const { showSeeds, setShowSeeds } = useViewStore();
+  const { showSeeds, setShowSeeds, setAddNewOpen } = useViewStore();
   const { theme, setTheme } = useTheme();
 
   return (
@@ -53,22 +54,34 @@ export function Header() {
               </DropdownMenuRadioGroup>
             </DropdownMenuContent>
           </DropdownMenu>
+          {/* Mobile: Plus button to add new project or seed */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="sm:hidden"
+            onClick={() => setAddNewOpen(true)}
+            aria-label="Add new"
+          >
+            <Plus className="h-5 w-5" />
+          </Button>
+          {/* Desktop: Seeds toggle button */}
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setShowSeeds(!showSeeds)}
             className={cn(
-              'transition-all',
+              'hidden sm:inline-flex transition-all',
               showSeeds
                 ? 'text-accent-foreground bg-accent/50'
                 : 'text-muted-foreground hover:text-foreground'
             )}
           >
-            <Lightbulb className={cn("h-4 w-4 sm:mr-1 transition-all", showSeeds && "text-accent drop-shadow-[0_0_4px_oklch(0.75_0.18_55/0.6)]")} />
-            <span className="hidden sm:inline">Seeds</span>
+            <Lightbulb className={cn("h-4 w-4 mr-1 transition-all", showSeeds && "text-accent drop-shadow-[0_0_4px_oklch(0.75_0.18_55/0.6)]")} />
+            Seeds
           </Button>
         </div>
       </div>
+      <AddNewModal />
     </header>
   );
 }

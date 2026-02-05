@@ -2,6 +2,7 @@ import { create } from 'zustand';
 
 type ViewType = 'table' | 'kanban';
 type KanbanGroupBy = 'priority' | 'status';
+type MobileDashboardTab = 'projects' | 'seeds';
 
 interface ViewState {
   projectsView: ViewType;
@@ -24,6 +25,10 @@ interface ViewState {
   setSeedFormOpen: (open: boolean) => void;
   editingSeed: string | null;
   setEditingSeed: (id: string | null) => void;
+  mobileDashboardTab: MobileDashboardTab;
+  setMobileDashboardTab: (tab: MobileDashboardTab) => void;
+  isAddNewOpen: boolean;
+  setAddNewOpen: (open: boolean) => void;
 }
 
 export const useViewStore = create<ViewState>((set) => ({
@@ -47,4 +52,8 @@ export const useViewStore = create<ViewState>((set) => ({
   setSeedFormOpen: (open) => set({ isSeedFormOpen: open, editingSeed: open ? null : null }),
   editingSeed: null,
   setEditingSeed: (id) => set({ editingSeed: id, isSeedFormOpen: !!id }),
+  mobileDashboardTab: 'projects',
+  setMobileDashboardTab: (tab) => set({ mobileDashboardTab: tab }),
+  isAddNewOpen: false,
+  setAddNewOpen: (open) => set({ isAddNewOpen: open }),
 }));
