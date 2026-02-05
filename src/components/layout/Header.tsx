@@ -19,7 +19,7 @@ export function Header() {
   return (
     <header className="border-b bg-background/80 backdrop-blur-sm sticky top-0 z-40">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-        <Link to="/" className="text-2xl font-bold flex items-center gap-2 hover:opacity-80 transition-opacity">
+        <Link to="/" className="text-xl sm:text-2xl font-bold flex items-center gap-2 hover:opacity-80 transition-opacity">
           <Palette className="h-6 w-6 text-primary" />
           <span className="spark-text">Museboard</span>
         </Link>
@@ -64,8 +64,8 @@ export function Header() {
                 : 'text-muted-foreground hover:text-foreground'
             )}
           >
-            <Lightbulb className={cn("h-4 w-4 mr-1 transition-all", showSeeds && "text-accent drop-shadow-[0_0_4px_oklch(0.75_0.18_55/0.6)]")} />
-            Seeds
+            <Lightbulb className={cn("h-4 w-4 sm:mr-1 transition-all", showSeeds && "text-accent drop-shadow-[0_0_4px_oklch(0.75_0.18_55/0.6)]")} />
+            <span className="hidden sm:inline">Seeds</span>
           </Button>
         </div>
       </div>
