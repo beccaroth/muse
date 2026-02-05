@@ -18,6 +18,7 @@ const badgeVariants = cva(
           "border-border text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
         ghost: "[a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
         link: "text-primary underline-offset-4 [a&]:hover:underline",
+        spark: "bg-gradient-to-r from-primary to-accent text-primary-foreground shadow-sm [a&]:hover:shadow-md [a&]:hover:shadow-primary/20",
       },
     },
     defaultVariants: {
