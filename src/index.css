@@ -4,76 +4,87 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Warm creative palette - soft cream background with rose/coral accents */
-  --background: oklch(0.985 0.005 80);
-  --foreground: oklch(0.25 0.02 280);
-  --card: oklch(0.995 0.003 80);
-  --card-foreground: oklch(0.25 0.02 280);
-  --popover: oklch(0.995 0.003 80);
-  --popover-foreground: oklch(0.25 0.02 280);
-  --primary: oklch(0.55 0.18 350);
-  --primary-foreground: oklch(0.98 0.005 80);
-  --secondary: oklch(0.94 0.02 80);
-  --secondary-foreground: oklch(0.35 0.02 280);
-  --muted: oklch(0.94 0.015 80);
-  --muted-foreground: oklch(0.5 0.02 280);
-  --accent: oklch(0.92 0.04 45);
-  --accent-foreground: oklch(0.3 0.02 280);
-  --destructive: oklch(0.55 0.22 25);
-  --destructive-foreground: oklch(0.98 0.005 80);
-  --border: oklch(0.88 0.02 80);
-  --input: oklch(0.9 0.015 80);
-  --ring: oklch(0.55 0.18 350);
+  /* Figment-inspired - dreamy lavender with vibrant purple + warm orange spark */
+  --background: oklch(0.995 0.005 300);
+  --foreground: oklch(0.22 0.04 295);
+  --card: oklch(1 0.003 300);
+  --card-foreground: oklch(0.22 0.04 295);
+  --popover: oklch(1 0.003 300);
+  --popover-foreground: oklch(0.22 0.04 295);
+  --primary: oklch(0.58 0.22 295);
+  --primary-foreground: oklch(0.99 0.01 295);
+  --secondary: oklch(0.96 0.025 295);
+  --secondary-foreground: oklch(0.32 0.04 295);
+  --muted: oklch(0.97 0.015 295);
+  --muted-foreground: oklch(0.52 0.04 295);
+  --accent: oklch(0.75 0.18 55);
+  --accent-foreground: oklch(0.25 0.05 55);
+  --destructive: oklch(0.62 0.24 25);
+  --destructive-foreground: oklch(0.98 0.01 25);
+  --border: oklch(0.91 0.02 295);
+  --input: oklch(0.94 0.015 295);
+  --ring: oklch(0.58 0.22 295);
   --radius: 0.625rem;
-  --chart-1: oklch(0.55 0.18 350);
-  --chart-2: oklch(0.65 0.15 45);
-  --chart-3: oklch(0.6 0.12 200);
-  --chart-4: oklch(0.7 0.16 140);
-  --chart-5: oklch(0.55 0.14 280);
-  --sidebar: oklch(0.98 0.008 80);
-  --sidebar-foreground: oklch(0.25 0.02 280);
-  --sidebar-primary: oklch(0.55 0.18 350);
-  --sidebar-primary-foreground: oklch(0.98 0.005 80);
-  --sidebar-accent: oklch(0.94 0.03 45);
-  --sidebar-accent-foreground: oklch(0.3 0.02 280);
-  --sidebar-border: oklch(0.88 0.02 80);
-  --sidebar-ring: oklch(0.55 0.18 350);
+  --chart-1: oklch(0.58 0.22 295);
+  --chart-2: oklch(0.75 0.18 55);
+  --chart-3: oklch(0.68 0.16 320);
+  --chart-4: oklch(0.72 0.16 35);
+  --chart-5: oklch(0.62 0.18 275);
+  --sidebar: oklch(0.995 0.008 295);
+  --sidebar-foreground: oklch(0.22 0.04 295);
+  --sidebar-primary: oklch(0.58 0.22 295);
+  --sidebar-primary-foreground: oklch(0.99 0.01 295);
+  --sidebar-accent: oklch(0.94 0.06 55);
+  --sidebar-accent-foreground: oklch(0.25 0.05 55);
+  --sidebar-border: oklch(0.9 0.025 295);
+  --sidebar-ring: oklch(0.58 0.22 295);
+
+  /* Imagination flourishes */
+  --spark: oklch(0.82 0.16 55);
+  --glow-purple: oklch(0.7 0.2 295 / 0.3);
+  --glow-orange: oklch(0.8 0.15 55 / 0.25);
+  --shimmer-speed: 3s;
 }
 
 .dark {
-  /* Dark mode - deep purple-gray with warm rose accents */
-  --background: oklch(0.18 0.02 280);
-  --foreground: oklch(0.95 0.01 80);
-  --card: oklch(0.22 0.025 280);
-  --card-foreground: oklch(0.95 0.01 80);
-  --popover: oklch(0.22 0.025 280);
-  --popover-foreground: oklch(0.95 0.01 80);
-  --primary: oklch(0.7 0.15 350);
-  --primary-foreground: oklch(0.15 0.02 280);
-  --secondary: oklch(0.28 0.03 280);
-  --secondary-foreground: oklch(0.9 0.01 80);
-  --muted: oklch(0.28 0.025 280);
-  --muted-foreground: oklch(0.65 0.02 80);
-  --accent: oklch(0.35 0.05 45);
-  --accent-foreground: oklch(0.9 0.01 80);
-  --destructive: oklch(0.6 0.2 25);
-  --destructive-foreground: oklch(0.95 0.01 80);
-  --border: oklch(0.35 0.03 280);
-  --input: oklch(0.3 0.025 280);
-  --ring: oklch(0.7 0.15 350);
-  --chart-1: oklch(0.7 0.15 350);
-  --chart-2: oklch(0.75 0.12 45);
-  --chart-3: oklch(0.65 0.1 200);
-  --chart-4: oklch(0.75 0.14 140);
-  --chart-5: oklch(0.65 0.12 280);
-  --sidebar: oklch(0.2 0.025 280);
-  --sidebar-foreground: oklch(0.95 0.01 80);
-  --sidebar-primary: oklch(0.7 0.15 350);
-  --sidebar-primary-foreground: oklch(0.15 0.02 280);
-  --sidebar-accent: oklch(0.32 0.04 45);
-  --sidebar-accent-foreground: oklch(0.9 0.01 80);
-  --sidebar-border: oklch(0.35 0.03 280);
-  --sidebar-ring: oklch(0.7 0.15 350);
+  /* Dark mode - deep imaginative plum with luminous purple + ember orange */
+  --background: oklch(0.14 0.035 295);
+  --foreground: oklch(0.94 0.02 295);
+  --card: oklch(0.18 0.04 295);
+  --card-foreground: oklch(0.94 0.02 295);
+  --popover: oklch(0.18 0.04 295);
+  --popover-foreground: oklch(0.94 0.02 295);
+  --primary: oklch(0.74 0.2 295);
+  --primary-foreground: oklch(0.14 0.04 295);
+  --secondary: oklch(0.26 0.045 295);
+  --secondary-foreground: oklch(0.9 0.02 295);
+  --muted: oklch(0.24 0.035 295);
+  --muted-foreground: oklch(0.68 0.04 295);
+  --accent: oklch(0.76 0.18 55);
+  --accent-foreground: oklch(0.14 0.04 55);
+  --destructive: oklch(0.65 0.22 25);
+  --destructive-foreground: oklch(0.98 0.01 25);
+  --border: oklch(0.32 0.05 295);
+  --input: oklch(0.28 0.04 295);
+  --ring: oklch(0.74 0.2 295);
+  --chart-1: oklch(0.74 0.2 295);
+  --chart-2: oklch(0.76 0.18 55);
+  --chart-3: oklch(0.72 0.16 320);
+  --chart-4: oklch(0.74 0.18 35);
+  --chart-5: oklch(0.7 0.18 275);
+  --sidebar: oklch(0.16 0.04 295);
+  --sidebar-foreground: oklch(0.94 0.02 295);
+  --sidebar-primary: oklch(0.74 0.2 295);
+  --sidebar-primary-foreground: oklch(0.14 0.04 295);
+  --sidebar-accent: oklch(0.42 0.12 55);
+  --sidebar-accent-foreground: oklch(0.94 0.02 55);
+  --sidebar-border: oklch(0.3 0.05 295);
+  --sidebar-ring: oklch(0.74 0.2 295);
+
+  /* Imagination flourishes - more vibrant in dark mode */
+  --spark: oklch(0.85 0.18 55);
+  --glow-purple: oklch(0.65 0.22 295 / 0.4);
+  --glow-orange: oklch(0.75 0.18 55 / 0.3);
 }
 
 * {
@@ -82,9 +93,63 @@
 
 body {
   @apply bg-background text-foreground;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
   margin: 0;
   min-height: 100vh;
+  background-image:
+    radial-gradient(
+      ellipse 900px 500px at 5% -5%,
+      oklch(0.92 0.1 295 / 0.4),
+      transparent 55%
+    ),
+    radial-gradient(
+      ellipse 700px 450px at 95% 0%,
+      oklch(0.94 0.14 55 / 0.32),
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse 500px 400px at 50% 8%,
+      oklch(0.96 0.08 315 / 0.22),
+      transparent 55%
+    ),
+    radial-gradient(
+      ellipse 300px 300px at 80% 60%,
+      oklch(0.95 0.06 295 / 0.12),
+      transparent 50%
+    ),
+    linear-gradient(175deg, oklch(0.995 0.005 300), oklch(0.99 0.012 310));
+  background-attachment: fixed;
+}
+
+.dark body {
+  background-image:
+    radial-gradient(
+      ellipse 900px 500px at 5% -5%,
+      oklch(0.28 0.14 295 / 0.5),
+      transparent 55%
+    ),
+    radial-gradient(
+      ellipse 700px 450px at 95% 0%,
+      oklch(0.35 0.14 55 / 0.35),
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse 400px 350px at 50% 15%,
+      oklch(0.3 0.1 315 / 0.25),
+      transparent 55%
+    ),
+    radial-gradient(
+      ellipse 250px 250px at 75% 70%,
+      oklch(0.25 0.08 295 / 0.2),
+      transparent 50%
+    ),
+    linear-gradient(175deg, oklch(0.15 0.04 295), oklch(0.12 0.035 290));
 }
 
 #root {
@@ -139,4 +204,223 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Imagination Flourishes - Figment's spark of creativity
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Subtle shimmer effect for special elements */
+@keyframes shimmer {
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes sparkle {
+  0%,
+  100% {
+    opacity: 0;
+    transform: scale(0) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1) rotate(180deg);
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes glow-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 8px var(--glow-purple),
+      0 0 16px var(--glow-orange);
+  }
+  50% {
+    box-shadow:
+      0 0 16px var(--glow-purple),
+      0 0 24px var(--glow-orange);
+  }
+}
+
+/* Spark highlight - use on headings or special text */
+.spark-text {
+  background: linear-gradient(
+    135deg,
+    oklch(0.58 0.22 295) 0%,
+    oklch(0.65 0.2 305) 40%,
+    oklch(0.75 0.18 55) 100%
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.dark .spark-text {
+  background: linear-gradient(
+    135deg,
+    oklch(0.74 0.2 295) 0%,
+    oklch(0.78 0.18 305) 40%,
+    oklch(0.82 0.18 55) 100%
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Imagination glow - subtle ambient glow for cards/containers */
+.imagination-glow {
+  position: relative;
+}
+
+.imagination-glow::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(
+    135deg,
+    oklch(0.7 0.15 295 / 0.15),
+    oklch(0.8 0.12 55 / 0.1)
+  );
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.imagination-glow:hover::before {
+  opacity: 1;
+}
+
+/* Dreamy focus ring - replaces standard focus with Figment colors */
+.dream-focus:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--background),
+    0 0 0 4px var(--primary),
+    0 0 12px var(--glow-purple);
+}
+
+/* Interactive spark - button/link hover enhancement */
+.spark-hover {
+  transition: all 0.2s ease;
+}
+
+.spark-hover:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 4px 12px oklch(0.58 0.22 295 / 0.2),
+    0 2px 4px oklch(0.75 0.18 55 / 0.1);
+}
+
+.dark .spark-hover:hover {
+  box-shadow:
+    0 4px 12px oklch(0.74 0.2 295 / 0.3),
+    0 2px 4px oklch(0.76 0.18 55 / 0.15);
+}
+
+/* Floating animation for icons/badges */
+.float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Progress/loading with imagination */
+.imagination-progress {
+  background: linear-gradient(
+    90deg,
+    oklch(0.58 0.22 295),
+    oklch(0.65 0.2 305),
+    oklch(0.75 0.18 55),
+    oklch(0.65 0.2 305),
+    oklch(0.58 0.22 295)
+  );
+  background-size: 200% 100%;
+  animation: shimmer-slide 2s linear infinite;
+}
+
+@keyframes shimmer-slide {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Subtle border gradient for special containers */
+.border-imagination {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(var(--card), var(--card)) padding-box,
+    linear-gradient(
+        135deg,
+        oklch(0.58 0.22 295 / 0.4),
+        oklch(0.75 0.18 55 / 0.3),
+        oklch(0.65 0.2 305 / 0.2)
+      )
+      border-box;
+}
+
+.dark .border-imagination {
+  background:
+    linear-gradient(var(--card), var(--card)) padding-box,
+    linear-gradient(
+        135deg,
+        oklch(0.74 0.2 295 / 0.5),
+        oklch(0.76 0.18 55 / 0.4),
+        oklch(0.7 0.18 305 / 0.3)
+      )
+      border-box;
+}
+
+/* Selection color - Figment purple */
+::selection {
+  background: oklch(0.58 0.22 295 / 0.3);
+  color: oklch(0.22 0.04 295);
+}
+
+.dark ::selection {
+  background: oklch(0.74 0.2 295 / 0.4);
+  color: oklch(0.94 0.02 295);
+}
+
+/* Scrollbar styling with Figment colors */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: oklch(0.8 0.08 295 / 0.4);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.65 0.15 295 / 0.6);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: oklch(0.5 0.1 295 / 0.4);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.6 0.15 295 / 0.6);
 }
