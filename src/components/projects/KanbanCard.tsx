@@ -36,8 +36,8 @@ export function KanbanCard({ project, isDragging }: KanbanCardProps) {
         {...listeners}
         {...attributes}
         className={cn(
-          'group relative cursor-grab active:cursor-grabbing transition-shadow hover:shadow-md',
-          isDragging && 'opacity-50 shadow-lg'
+          'group relative cursor-grab active:cursor-grabbing transition-all hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-0.5',
+          isDragging && 'opacity-50 shadow-xl shadow-primary/20 scale-[1.02]'
         )}
       >
         <Button

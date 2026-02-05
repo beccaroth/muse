@@ -51,8 +51,12 @@ export function ProgressBar({ progress, className, showLabel = false, onChange }
       >
         <div
           className={cn(
-            'h-full rounded-full transition-all duration-100',
-            clampedProgress === 100 ? 'bg-green-500' : 'bg-primary'
+            'h-full rounded-full transition-all duration-200',
+            clampedProgress === 100
+              ? 'bg-gradient-to-r from-green-500 to-emerald-400 shadow-[0_0_8px_oklch(0.7_0.2_145/0.5)]'
+              : clampedProgress > 0
+              ? 'bg-gradient-to-r from-primary to-primary/80'
+              : 'bg-primary'
           )}
           style={{ width: `${clampedProgress}%` }}
         />

@@ -11,7 +11,7 @@ export function StatusDot({ status, className }: StatusDotProps) {
   return (
     <span
       className={cn(
-        'inline-block h-2 w-2 rounded-full',
+        'inline-block h-2 w-2 rounded-full shadow-[0_0_4px_currentColor]',
         STATUS_DOT_COLORS[status],
         className
       )}
