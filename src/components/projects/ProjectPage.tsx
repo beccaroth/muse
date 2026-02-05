@@ -14,8 +14,8 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 
 export function ProjectPage() {
-  const { projectId } = useParams({ from: '/project/$projectId' });
-  const { data: project, isLoading } = useProject(projectId);
+  const { projectId } = useParams({ strict: false });
+  const { data: project, isLoading } = useProject(projectId ?? null);
   const { deleteProject } = useDeleteProjectWithUndo();
   const navigate = useNavigate();
   const [isEditFormOpen, setIsEditFormOpen] = useState(false);
@@ -139,7 +139,7 @@ export function ProjectPage() {
       <ProjectForm
         open={isEditFormOpen}
         onOpenChange={setIsEditFormOpen}
-        projectId={projectId}
+        projectId={projectId ?? null}
       />
 
       {/* Delete Confirmation Dialog */}

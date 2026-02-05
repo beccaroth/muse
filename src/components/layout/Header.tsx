@@ -1,5 +1,6 @@
-import { Link } from '@tanstack/react-router';
-import { Palette, Lightbulb, Monitor, Moon, Sun, Plus } from 'lucide-react';
+import { Link, useNavigate, useRouter } from '@tanstack/react-router';
+import { Palette, Lightbulb, Monitor, Moon, Sun, Plus, LogOut } from 'lucide-react';
+import { useAuth } from '@/stores/authStore';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -16,6 +17,9 @@ import { AddNewModal } from './AddNewModal';
 export function Header() {
   const { showSeeds, setShowSeeds, setAddNewOpen } = useViewStore();
   const { theme, setTheme } = useTheme();
+  const navigate = useNavigate();
+  const router = useRouter();
+  const auth = useAuth();
 
   return (
     <header className="border-b bg-background/80 backdrop-blur-sm sticky top-0 z-40">
@@ -78,6 +82,18 @@ export function Header() {
           >
             <Lightbulb className={cn("h-4 w-4 mr-1 transition-all", showSeeds && "text-accent drop-shadow-[0_0_4px_oklch(0.75_0.18_55/0.6)]")} />
             Seeds
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={async () => {
+              await auth.logout();
+              await router.invalidate();
+              await navigate({ to: '/login' });
+            }}
+            aria-label="Sign out"
+          >
+            <LogOut className="h-4 w-4" />
           </Button>
         </div>
       </div>
