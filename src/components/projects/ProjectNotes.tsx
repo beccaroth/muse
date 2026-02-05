@@ -1,6 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { useUpdateProject } from '@/hooks/useProjects';
-import { RichTextEditor } from '@/components/ui/rich-text-editor';
+import { SimpleEditor } from '@/components/tiptap-templates/simple/simple-editor';
 import type { Project } from '@/types';
 
 const DEBOUNCE_MS = 1500;
@@ -74,7 +74,7 @@ export function ProjectNotes({ project }: ProjectNotesProps) {
           <span className="text-xs text-muted-foreground">Saving...</span>
         )}
       </div>
-      <RichTextEditor
+      <SimpleEditor
         content={project.notes ?? ''}
         onUpdate={handleUpdate}
         placeholder="Add notes about this project..."
