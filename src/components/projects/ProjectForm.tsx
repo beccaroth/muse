@@ -257,7 +257,25 @@ export function ProjectForm({ open, onOpenChange, projectId }: ProjectFormProps)
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="progress">Progress ({watch('progress') || 0}%)</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="progress">Progress</Label>
+                <div className="flex items-center gap-1">
+                  <Input
+                    type="number"
+                    min={0}
+                    max={100}
+                    value={watch('progress') || 0}
+                    onChange={(e) => {
+                      const value = parseInt(e.target.value, 10);
+                      if (!isNaN(value)) {
+                        setValue('progress', Math.max(0, Math.min(100, value)));
+                      }
+                    }}
+                    className="w-16 h-7 text-sm text-right pr-1"
+                  />
+                  <span className="text-sm text-muted-foreground">%</span>
+                </div>
+              </div>
               <Input
                 id="progress"
                 type="range"
