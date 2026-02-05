@@ -8,6 +8,7 @@ export interface Project {
   priority: ProjectPriority;
   project_types: ProjectType[];
   description: string | null;
+  notes: string | null;
   start_date: string | null;
   end_date: string | null;
   progress: number;

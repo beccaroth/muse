@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+@plugin "@tailwindcss/typography";
+
 @custom-variant dark (&:is(.dark *));
 
 :root {
@@ -423,4 +425,45 @@ body {
 
 .dark ::-webkit-scrollbar-thumb:hover {
   background: oklch(0.6 0.15 295 / 0.6);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Tiptap Rich Text Editor
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.tiptap {
+  outline: none;
+}
+
+/* Tighten prose spacing inside the editor */
+.tiptap p,
+.tiptap ul,
+.tiptap ol,
+.tiptap blockquote,
+.tiptap h1,
+.tiptap h2,
+.tiptap h3 {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+.tiptap li {
+  margin-top: 0.15em;
+  margin-bottom: 0.15em;
+}
+
+.tiptap > *:first-child {
+  margin-top: 0;
+}
+
+.tiptap > *:last-child {
+  margin-bottom: 0;
+}
+
+.tiptap p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: var(--muted-foreground);
+  float: left;
+  height: 0;
+  pointer-events: none;
 }
