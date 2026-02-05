@@ -1,6 +1,3 @@
--- Enable UUID extension
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
 -- Create custom types for enums (status and priority are fixed, types are extensible)
 CREATE TYPE project_status AS ENUM ('Not started', 'On hold', 'In progress', 'Done');
 CREATE TYPE project_priority AS ENUM ('Now', 'Next', 'Someday');
@@ -9,7 +6,7 @@ CREATE TYPE project_priority AS ENUM ('Now', 'Next', 'Someday');
 -- Note: project_types is TEXT[] to allow custom types (not enum)
 -- progress is a simple percentage (0-100) instead of start/end/current values
 CREATE TABLE projects (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     project_name TEXT NOT NULL,
     status project_status NOT NULL DEFAULT 'Not started',
     priority project_priority NOT NULL DEFAULT 'Someday',
@@ -25,7 +22,7 @@ CREATE TABLE projects (
 -- Seeds table (inbox for ideas)
 -- Note: project_type is TEXT to allow custom types
 CREATE TABLE seeds (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     title TEXT NOT NULL,
     description TEXT,
     project_type TEXT,
@@ -36,7 +33,7 @@ CREATE TABLE seeds (
 
 -- Tasks table (linked to projects, for future TODO feature)
 CREATE TABLE tasks (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
     title TEXT NOT NULL,
     completed BOOLEAN DEFAULT false,
