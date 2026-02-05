@@ -39,6 +39,7 @@ export function SeedsTable({ seeds, isLoading }: SeedsTableProps) {
     try {
       await createProject.mutateAsync({
         project_name: seed.title,
+        icon: seed.icon,
         description: seed.description,
         project_types: seed.project_type ? [seed.project_type] : [],
         status: 'Not started',
@@ -86,7 +87,10 @@ export function SeedsTable({ seeds, isLoading }: SeedsTableProps) {
             <TableRow key={seed.id}>
               <TableCell>
                 <div>
-                  <div className="font-medium">{seed.title}</div>
+                  <div className="font-medium flex items-center gap-2">
+                    {seed.icon && <span>{seed.icon}</span>}
+                    {seed.title}
+                  </div>
                   {seed.description && (
                     <div className="text-sm text-muted-foreground line-clamp-1">
                       {seed.description}

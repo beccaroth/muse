@@ -3,6 +3,7 @@ import type { ProjectStatus, ProjectPriority, ProjectType } from '@/lib/constant
 export interface Project {
   id: string;
   project_name: string;
+  icon: string | null;
   status: ProjectStatus;
   priority: ProjectPriority;
   project_types: ProjectType[];
@@ -17,6 +18,7 @@ export interface Project {
 export interface Seed {
   id: string;
   title: string;
+  icon: string | null;
   description: string | null;
   project_type: ProjectType | null;
   date_added: string;

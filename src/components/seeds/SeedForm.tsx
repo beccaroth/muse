@@ -22,9 +22,11 @@ import {
 } from '@/components/ui/select';
 import { DEFAULT_PROJECT_TYPES } from '@/lib/constants';
 import { useSeed, useCreateSeed, useUpdateSeed } from '@/hooks/useSeeds';
+import { EmojiPicker } from '@/components/projects/EmojiPicker';
 
 const seedSchema = z.object({
   title: z.string().min(1, 'Title is required'),
+  icon: z.string().nullable(),
   description: z.string().nullable(),
   project_type: z.string().nullable(),
   date_added: z.string(),
@@ -55,6 +57,7 @@ export function SeedForm({ open, onOpenChange, seedId }: SeedFormProps) {
     resolver: zodResolver(seedSchema),
     defaultValues: {
       title: '',
+      icon: null,
       description: null,
       project_type: null,
       date_added: new Date().toISOString().split('T')[0],
@@ -65,6 +68,7 @@ export function SeedForm({ open, onOpenChange, seedId }: SeedFormProps) {
     if (seed) {
       reset({
         title: seed.title,
+        icon: seed.icon,
         description: seed.description,
         project_type: seed.project_type,
         date_added: seed.date_added,
@@ -72,6 +76,7 @@ export function SeedForm({ open, onOpenChange, seedId }: SeedFormProps) {
     } else {
       reset({
         title: '',
+        icon: null,
         description: null,
         project_type: null,
         date_added: new Date().toISOString().split('T')[0],
@@ -99,7 +104,13 @@ export function SeedForm({ open, onOpenChange, seedId }: SeedFormProps) {
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
               <Label htmlFor="title">Title</Label>
-              <Input id="title" {...register('title')} placeholder="What's your idea?" />
+              <div className="flex gap-2">
+                <EmojiPicker
+                  value={watch('icon')}
+                  onChange={(emoji) => setValue('icon', emoji)}
+                />
+                <Input id="title" {...register('title')} placeholder="What's your idea?" className="flex-1" />
+              </div>
               {errors.title && (
                 <p className="text-sm text-destructive">{errors.title.message}</p>
               )}

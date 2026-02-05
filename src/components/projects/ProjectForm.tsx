@@ -25,10 +25,12 @@ import {
 import { PROJECT_STATUSES, PROJECT_PRIORITIES, DEFAULT_PROJECT_TYPES } from '@/lib/constants';
 import { useProject, useCreateProject, useUpdateProject } from '@/hooks/useProjects';
 import { StatusDot } from './StatusDot';
+import { EmojiPicker } from './EmojiPicker';
 import type { ProjectStatus, ProjectPriority } from '@/lib/constants';
 
 const projectSchema = z.object({
   project_name: z.string().min(1, 'Name is required'),
+  icon: z.string().nullable(),
   status: z.enum(PROJECT_STATUSES),
   priority: z.enum(PROJECT_PRIORITIES),
   project_types: z.array(z.string()),
@@ -64,6 +66,7 @@ export function ProjectForm({ open, onOpenChange, projectId }: ProjectFormProps)
     resolver: zodResolver(projectSchema) as never,
     defaultValues: {
       project_name: '',
+      icon: null,
       status: 'Not started',
       priority: 'Someday',
       project_types: [],
@@ -80,6 +83,7 @@ export function ProjectForm({ open, onOpenChange, projectId }: ProjectFormProps)
     if (project) {
       reset({
         project_name: project.project_name,
+        icon: project.icon,
         status: project.status,
         priority: project.priority,
         project_types: project.project_types,
@@ -91,6 +95,7 @@ export function ProjectForm({ open, onOpenChange, projectId }: ProjectFormProps)
     } else {
       reset({
         project_name: '',
+        icon: null,
         status: 'Not started',
         priority: 'Someday',
         project_types: [],
@@ -142,7 +147,13 @@ export function ProjectForm({ open, onOpenChange, projectId }: ProjectFormProps)
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
               <Label htmlFor="project_name">Name</Label>
-              <Input id="project_name" {...register('project_name')} />
+              <div className="flex gap-2">
+                <EmojiPicker
+                  value={watch('icon')}
+                  onChange={(emoji) => setValue('icon', emoji)}
+                />
+                <Input id="project_name" {...register('project_name')} className="flex-1" />
+              </div>
               {errors.project_name && (
                 <p className="text-sm text-destructive">{errors.project_name.message}</p>
               )}
