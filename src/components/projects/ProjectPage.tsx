@@ -1,11 +1,13 @@
 import { Link, useParams, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
-import { useProject, useDeleteProject } from '@/hooks/useProjects';
+import { useProject } from '@/hooks/useProjects';
+import { useDeleteProjectWithUndo } from '@/hooks/useDeleteProjectWithUndo';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ProgressBar } from './ProgressBar';
 import { StatusDot } from './StatusDot';
 import { ProjectForm } from './ProjectForm';
+import { DeleteProjectDialog } from './DeleteProjectDialog';
 import { getTypeColor } from '@/lib/constants';
 import { ArrowLeft, Pencil, Trash2, Calendar } from 'lucide-react';
 import { format } from 'date-fns';
@@ -14,13 +16,16 @@ import { cn } from '@/lib/utils';
 export function ProjectPage() {
   const { projectId } = useParams({ from: '/project/$projectId' });
   const { data: project, isLoading } = useProject(projectId);
-  const deleteProject = useDeleteProject();
+  const { deleteProject } = useDeleteProjectWithUndo();
   const navigate = useNavigate();
   const [isEditFormOpen, setIsEditFormOpen] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
-  const handleDelete = async () => {
-    await deleteProject.mutateAsync(projectId);
-    navigate({ to: '/' });
+  const handleConfirmDelete = () => {
+    if (project) {
+      deleteProject(project, () => navigate({ to: '/' }));
+      setShowDeleteDialog(false);
+    }
   };
 
   if (isLoading) {
@@ -79,7 +84,7 @@ export function ProjectPage() {
             <Button
               variant="outline"
               className="text-destructive hover:text-destructive"
-              onClick={handleDelete}
+              onClick={() => setShowDeleteDialog(true)}
             >
               <Trash2 className="h-4 w-4 mr-2" />
               Delete
@@ -139,6 +144,14 @@ export function ProjectPage() {
         open={isEditFormOpen}
         onOpenChange={setIsEditFormOpen}
         projectId={projectId}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <DeleteProjectDialog
+        project={project}
+        open={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+        onConfirm={handleConfirmDelete}
       />
     </div>
   );
