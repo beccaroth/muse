@@ -1,4 +1,4 @@
-import { DndContext, DragOverlay, closestCenter } from '@dnd-kit/core';
+import { DndContext, DragOverlay, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
 import { useState } from 'react';
 import { KanbanColumn } from './KanbanColumn';
@@ -18,6 +18,15 @@ export function ProjectKanban({ projects, isLoading }: ProjectKanbanProps) {
   const [activeProject, setActiveProject] = useState<Project | null>(null);
   const updateProject = useUpdateProject();
   const { kanbanGroupBy, showDoneColumn } = useViewStore();
+
+  // Configure sensors with activation constraint so clicks work
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8, // 8px movement required before drag starts
+      },
+    })
+  );
 
   // Filter out Done projects when grouping by priority (unless showDoneColumn is true)
   const filteredProjects = kanbanGroupBy === 'priority' && !showDoneColumn
@@ -83,7 +92,7 @@ export function ProjectKanban({ projects, isLoading }: ProjectKanbanProps) {
   }
 
   return (
-    <DndContext collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
       {kanbanGroupBy === 'priority' ? (
         <div className="grid grid-cols-3 gap-4">
           {PROJECT_PRIORITIES.map((priority) => (
