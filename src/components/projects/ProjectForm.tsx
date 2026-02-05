@@ -111,7 +111,7 @@ export function ProjectForm({ open, onOpenChange, projectId }: ProjectFormProps)
     if (isEditing) {
       await updateProject.mutateAsync({ id: projectId, ...data });
     } else {
-      await createProject.mutateAsync(data);
+      await createProject.mutateAsync({ ...data, notes: null });
     }
     onOpenChange(false);
   };

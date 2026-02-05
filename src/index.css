@@ -1,5 +1,10 @@
+@import './styles/_variables.scss';
+@import './styles/_keyframe-animations.scss';
+
 @import "tailwindcss";
 @import "tw-animate-css";
+
+@plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -424,3 +429,5 @@ body {
 .dark ::-webkit-scrollbar-thumb:hover {
   background: oklch(0.6 0.15 295 / 0.6);
 }
+
+

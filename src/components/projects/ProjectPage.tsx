@@ -11,6 +11,7 @@ import { DeleteProjectDialog } from './DeleteProjectDialog';
 import { getTypeColor } from '@/lib/constants';
 import { ChevronLeft, Pencil, Trash2, Calendar } from 'lucide-react';
 import { format } from 'date-fns';
+import { ProjectNotes } from './ProjectNotes';
 import { cn } from '@/lib/utils';
 
 export function ProjectPage() {
@@ -118,6 +119,9 @@ export function ProjectPage() {
           </p>
         </div>
       )}
+
+      {/* Notes */}
+      <ProjectNotes project={project} />
 
       {/* Dates */}
       {(project.start_date || project.end_date) && (

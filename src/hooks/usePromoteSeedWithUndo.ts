@@ -37,6 +37,7 @@ export function usePromoteSeedWithUndo() {
         project_name: seed.title,
         icon: seed.icon,
         description: seed.description,
+        notes: null,
         project_types: seed.project_type ? [seed.project_type] : [],
         status: 'Not started',
         priority: 'Someday',
