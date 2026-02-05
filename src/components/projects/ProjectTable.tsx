@@ -1,3 +1,4 @@
+import { useNavigate } from '@tanstack/react-router';
 import {
   Table,
   TableBody,
@@ -29,6 +30,7 @@ interface ProjectTableProps {
 }
 
 export function ProjectTable({ projects, isLoading }: ProjectTableProps) {
+  const navigate = useNavigate();
   const { setEditingProject } = useViewStore();
   const deleteProject = useDeleteProject();
 
@@ -63,8 +65,17 @@ export function ProjectTable({ projects, isLoading }: ProjectTableProps) {
         </TableHeader>
         <TableBody>
           {projects.map((project) => (
-            <TableRow key={project.id}>
-              <TableCell className="font-medium">{project.project_name}</TableCell>
+            <TableRow
+              key={project.id}
+              className="cursor-pointer hover:bg-muted/50"
+              onClick={() => navigate({ to: '/project/$projectId', params: { projectId: project.id } })}
+            >
+              <TableCell className="font-medium">
+                <span className="flex items-center gap-2">
+                  {project.icon && <span>{project.icon}</span>}
+                  {project.project_name}
+                </span>
+              </TableCell>
               <TableCell>
                 <span className="flex items-center gap-2">
                   <StatusDot status={project.status} />
@@ -88,7 +99,7 @@ export function ProjectTable({ projects, isLoading }: ProjectTableProps) {
               <TableCell className="w-32">
                 <ProgressBar progress={project.progress} showLabel />
               </TableCell>
-              <TableCell>
+              <TableCell onClick={(e) => e.stopPropagation()}>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon" className="h-8 w-8">

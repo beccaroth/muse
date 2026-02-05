@@ -26,7 +26,7 @@ export function ProjectsSection() {
     setProjectFormOpen,
     isProjectFormOpen,
     editingProject,
-    setEditingProject
+    setEditingProject,
   } = useViewStore();
   const { data: projects, isLoading } = useProjects();
 
