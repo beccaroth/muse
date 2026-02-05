@@ -1,25 +1,30 @@
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { Palette, Loader2 } from 'lucide-react';
-import { useRouter, useSearch } from '@tanstack/react-router';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { useAuth } from '@/stores/authStore';
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Palette, Loader2 } from "lucide-react";
+import { useRouter, useSearch } from "@tanstack/react-router";
+import {
+  Card,
+  CardHeader,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useAuth } from "@/stores/authStore";
 
 const loginSchema = z.object({
-  email: z.string().email('Invalid email'),
-  password: z.string().min(1, 'Password is required'),
+  email: z.email("Invalid email"),
+  password: z.string().min(1, "Password is required"),
 });
 
 type LoginForm = z.infer<typeof loginSchema>;
 
 export function LoginPage() {
   const router = useRouter();
-  const search = useSearch({ from: '/login' });
+  const search = useSearch({ from: "/login" });
   const auth = useAuth();
   const [error, setError] = useState<string | null>(null);
 
@@ -39,37 +44,37 @@ export function LoginPage() {
       if (search.redirect) {
         router.history.push(search.redirect);
       } else {
-        await router.navigate({ to: '/' });
+        await router.navigate({ to: "/" });
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Login failed');
+      setError(err instanceof Error ? err.message : "Login failed");
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
       <Card className="w-full max-w-sm">
-        <CardHeader className="text-center">
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <Palette className="h-7 w-7 text-primary" />
-            <span className="text-2xl font-bold spark-text">Museboard</span>
-          </div>
-          <CardTitle>Welcome back</CardTitle>
-          <CardDescription>Sign in to continue</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+          <CardHeader className="text-center">
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <Palette className="h-7 w-7 text-primary" />
+              <span className="text-2xl font-bold spark-text">Museboard</span>
+            </div>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-4">
             <div className="flex flex-col gap-2">
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
                 type="email"
                 autoComplete="email"
-                {...register('email')}
+                {...register("email")}
                 aria-invalid={!!errors.email}
               />
               {errors.email && (
-                <p className="text-sm text-destructive">{errors.email.message}</p>
+                <p className="text-sm text-destructive">
+                  {errors.email.message}
+                </p>
               )}
             </div>
             <div className="flex flex-col gap-2">
@@ -78,13 +83,17 @@ export function LoginPage() {
                 id="password"
                 type="password"
                 autoComplete="current-password"
-                {...register('password')}
+                {...register("password")}
                 aria-invalid={!!errors.password}
               />
               {errors.password && (
-                <p className="text-sm text-destructive">{errors.password.message}</p>
+                <p className="text-sm text-destructive">
+                  {errors.password.message}
+                </p>
               )}
             </div>
+          </CardContent>
+          <CardFooter>
             {error && (
               <p className="text-sm text-destructive text-center">{error}</p>
             )}
@@ -92,8 +101,8 @@ export function LoginPage() {
               {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
               Sign in
             </Button>
-          </form>
-        </CardContent>
+          </CardFooter>
+        </form>
       </Card>
     </div>
   );
