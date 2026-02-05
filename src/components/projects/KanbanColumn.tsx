@@ -28,7 +28,7 @@ export function KanbanColumn({ id, title, projects, colorType }: KanbanColumnPro
     <div
       ref={setNodeRef}
       className={cn(
-        'flex flex-col rounded-lg bg-muted/50 p-3 min-h-[300px] transition-colors',
+        'flex flex-col rounded-lg bg-muted/50 p-3 min-h-[150px] sm:min-h-[300px] transition-colors',
         isOver && 'bg-muted'
       )}
     >

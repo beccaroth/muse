@@ -60,7 +60,7 @@ export function ProjectsSection() {
                 value={kanbanGroupBy}
                 onValueChange={(v) => setKanbanGroupBy(v as 'priority' | 'status')}
               >
-                <SelectTrigger className="w-[130px] h-8 text-xs">
+                <SelectTrigger className="w-full sm:w-[130px] h-8 text-xs">
                   <SelectValue placeholder="Group by" />
                 </SelectTrigger>
                 <SelectContent>

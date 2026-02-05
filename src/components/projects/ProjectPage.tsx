@@ -59,11 +59,11 @@ export function ProjectPage() {
       </Link>
 
       {/* Header */}
-      <div className="flex items-start justify-between mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-8">
         <div className="flex items-center gap-4">
-          {project.icon && <span className="text-5xl">{project.icon}</span>}
+          {project.icon && <span className="text-4xl sm:text-5xl">{project.icon}</span>}
           <div>
-            <h1 className="text-3xl font-bold">{project.project_name}</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold">{project.project_name}</h1>
             <div className="flex items-center gap-3 mt-2">
               <span className="flex items-center gap-2">
                 <StatusDot status={project.status} className="h-3 w-3" />
