@@ -14,6 +14,8 @@ interface ViewState {
   setShowSeeds: (show: boolean) => void;
   selectedProjectId: string | null;
   setSelectedProjectId: (id: string | null) => void;
+  viewingProject: string | null;
+  setViewingProject: (id: string | null) => void;
   isProjectFormOpen: boolean;
   setProjectFormOpen: (open: boolean) => void;
   editingProject: string | null;
@@ -35,6 +37,8 @@ export const useViewStore = create<ViewState>((set) => ({
   setShowSeeds: (show) => set({ showSeeds: show }),
   selectedProjectId: null,
   setSelectedProjectId: (id) => set({ selectedProjectId: id }),
+  viewingProject: null,
+  setViewingProject: (id) => set({ viewingProject: id }),
   isProjectFormOpen: false,
   setProjectFormOpen: (open) => set({ isProjectFormOpen: open, editingProject: open ? null : null }),
   editingProject: null,
