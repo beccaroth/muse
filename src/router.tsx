@@ -1,16 +1,11 @@
-import { createRouter, createRoute, createRootRoute, Outlet } from '@tanstack/react-router';
-import { Toaster } from '@/components/ui/sonner';
+import { createRouter, createRoute, createRootRoute } from '@tanstack/react-router';
 import { Dashboard } from '@/components/layout/Dashboard';
+import { RootLayout } from '@/components/layout/RootLayout';
 import { ProjectPage } from '@/components/projects/ProjectPage';
 
 // Root route
 const rootRoute = createRootRoute({
-  component: () => (
-    <>
-      <Outlet />
-      <Toaster position="bottom-right" />
-    </>
-  ),
+  component: RootLayout,
 });
 
 // Index route (dashboard)
