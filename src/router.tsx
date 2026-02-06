@@ -1,8 +1,5 @@
-import { createRouter, createRoute, createRootRouteWithContext, redirect } from '@tanstack/react-router';
-import { Dashboard } from '@/components/layout/Dashboard';
+import { createRouter, createRoute, createRootRouteWithContext, redirect, lazyRouteComponent } from '@tanstack/react-router';
 import { AppShell, AuthenticatedLayout } from '@/components/layout/RootLayout';
-import { ProjectPage } from '@/components/projects/ProjectPage';
-import { LoginPage } from '@/components/auth/LoginPage';
 import { Loading } from '@/components/ui/loading';
 import type { AuthContext } from '@/stores/authStore';
 
@@ -19,7 +16,10 @@ const rootRoute = createRootRouteWithContext<RouterContext>()({
 const loginRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/login',
-  component: LoginPage,
+  component: lazyRouteComponent(
+    () => import('@/components/auth/LoginPage'),
+    'LoginPage',
+  ),
   validateSearch: (search: Record<string, unknown>): { redirect?: string } => ({
     redirect: typeof search.redirect === 'string' ? search.redirect : undefined,
   }),
@@ -49,14 +49,20 @@ const authenticatedRoute = createRoute({
 const indexRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: '/',
-  component: Dashboard,
+  component: lazyRouteComponent(
+    () => import('@/components/layout/Dashboard'),
+    'Dashboard',
+  ),
 });
 
 // Project detail route
 const projectRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: '/project/$projectId',
-  component: ProjectPage,
+  component: lazyRouteComponent(
+    () => import('@/components/projects/ProjectPage'),
+    'ProjectPage',
+  ),
 });
 
 // Route tree

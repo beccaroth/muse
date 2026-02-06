@@ -11,4 +11,25 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  build: {
+    chunkSizeWarningLimit: 800,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('@tiptap/') || id.includes('prosemirror')) {
+            return 'tiptap';
+          }
+          if (id.includes('@tanstack/')) {
+            return 'tanstack';
+          }
+          if (
+            id.includes('node_modules/react-dom/') ||
+            id.includes('node_modules/react/')
+          ) {
+            return 'react';
+          }
+        },
+      },
+    },
+  },
 })
