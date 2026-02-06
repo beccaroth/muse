@@ -1,21 +1,29 @@
-import { FolderKanban, Plus, Table as TableIcon, LayoutGrid, Eye, EyeOff } from 'lucide-react';
-import { Section } from '@/components/layout/Section';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  FolderKanban,
+  Plus,
+  Table as TableIcon,
+  LayoutGrid,
+  Eye,
+  EyeOff,
+} from "lucide-react";
+import { Section } from "@/components/layout/Section";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { ProjectTable } from './ProjectTable';
-import { ProjectKanban } from './ProjectKanban';
-import { ProjectForm } from './ProjectForm';
-import { useViewStore } from '@/stores/viewStore';
-import { useProjects } from '@/hooks/useProjects';
+} from "@/components/ui/select";
+import { ProjectTable } from "./ProjectTable";
+import { ProjectKanban } from "./ProjectKanban";
+import { ProjectForm } from "./ProjectForm";
+import { useViewStore } from "@/stores/viewStore";
+import { useProjects } from "@/hooks/useProjects";
+import SeedsToggleButton from "../seeds/SeedsToggleButton";
 
-export function ProjectsSection() {
+export function ProjectsSection({ className }: { className?: string }) {
   const {
     projectsView,
     setProjectsView,
@@ -35,13 +43,20 @@ export function ProjectsSection() {
       title="Projects"
       icon={<FolderKanban className="h-5 w-5" />}
       actions={
-        <Button size="sm" onClick={() => setProjectFormOpen(true)}>
-          <Plus className="h-4 w-4 mr-1" />
-          New Project
-        </Button>
+        <>
+          <Button size="sm" onClick={() => setProjectFormOpen(true)}>
+            <Plus className="h-4 w-4 mr-1" />
+            New Project
+          </Button>
+          <SeedsToggleButton />
+        </>
       }
+      className={className}
     >
-      <Tabs value={projectsView} onValueChange={(v) => setProjectsView(v as 'table' | 'kanban')}>
+      <Tabs
+        value={projectsView}
+        onValueChange={(v) => setProjectsView(v as "table" | "kanban")}
+      >
         <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
           <TabsList>
             <TabsTrigger value="kanban">
@@ -54,11 +69,13 @@ export function ProjectsSection() {
             </TabsTrigger>
           </TabsList>
 
-          {projectsView === 'kanban' && (
+          {projectsView === "kanban" && (
             <div className="flex items-center gap-2">
               <Select
                 value={kanbanGroupBy}
-                onValueChange={(v) => setKanbanGroupBy(v as 'priority' | 'status')}
+                onValueChange={(v) =>
+                  setKanbanGroupBy(v as "priority" | "status")
+                }
               >
                 <SelectTrigger className="w-full sm:w-[130px] h-8 text-xs">
                   <SelectValue placeholder="Group by" />
@@ -69,9 +86,9 @@ export function ProjectsSection() {
                 </SelectContent>
               </Select>
 
-              {kanbanGroupBy === 'status' && (
+              {kanbanGroupBy === "status" && (
                 <Button
-                  variant={showDoneColumn ? 'default' : 'outline'}
+                  variant={showDoneColumn ? "default" : "outline"}
                   size="sm"
                   className="h-8 text-xs"
                   onClick={() => setShowDoneColumn(!showDoneColumn)}

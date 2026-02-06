@@ -1,13 +1,13 @@
-import { FolderKanban, Lightbulb } from 'lucide-react';
+import { FolderKanban, Lightbulb } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { useViewStore } from '@/stores/viewStore';
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { useViewStore } from "@/stores/viewStore";
 
 export function AddNewModal() {
   const { isAddNewOpen, setAddNewOpen, setProjectFormOpen, setSeedFormOpen } =
