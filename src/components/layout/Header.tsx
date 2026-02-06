@@ -22,16 +22,16 @@ export function Header() {
   const auth = useAuth();
 
   return (
-    <header className="border-b bg-background/80 backdrop-blur-sm sticky top-0 z-40">
-      <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+    <header className="border-b bg-background/80 backdrop-blur-sm sticky top-0 z-40 [-webkit-app-region:drag]">
+      <div className="container mx-auto px-4 py-4 flex items-center justify-between pl-20">
         <Link
           to="/"
-          className="text-xl sm:text-2xl font-bold flex items-center gap-2 hover:opacity-80 transition-opacity"
+          className="text-xl sm:text-2xl font-bold flex items-center gap-2 hover:opacity-80 transition-opacity [-webkit-app-region:no-drag]"
         >
           <Palette className="h-6 w-6 text-primary" />
           <span className="spark-text">Museboard</span>
         </Link>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 [-webkit-app-region:no-drag]">
           <CommandPalette />
           {/* Mobile: Plus button to add new project or seed */}
           <Button

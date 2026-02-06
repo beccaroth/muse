@@ -1,4 +1,4 @@
-import { createRouter, createRoute, createRootRouteWithContext, redirect, lazyRouteComponent } from '@tanstack/react-router';
+import { createRouter, createRoute, createRootRouteWithContext, redirect, lazyRouteComponent, createHashHistory } from '@tanstack/react-router';
 import { AppShell, AuthenticatedLayout } from '@/components/layout/RootLayout';
 import { Loading } from '@/components/ui/loading';
 import type { AuthContext } from '@/stores/authStore';
@@ -71,9 +71,14 @@ const routeTree = rootRoute.addChildren([
   authenticatedRoute.addChildren([indexRoute, projectRoute]),
 ]);
 
+// Use hash history in Electron (file:// protocol can't do path-based routing)
+const isElectron = window.location.protocol === 'file:';
+const hashHistory = createHashHistory();
+
 // Create router
 export const router = createRouter({
   routeTree,
+  history: isElectron ? hashHistory : undefined,
   context: {
     auth: undefined!,  // Will be set by RouterProvider in main.tsx
   },
