@@ -12,6 +12,7 @@ import {
 import { useViewStore } from '@/stores/viewStore';
 import { useTheme } from '@/hooks/useTheme';
 import { AddNewModal } from './AddNewModal';
+import { CommandPalette } from './CommandPalette';
 
 export function Header() {
   const { setAddNewOpen } = useViewStore();
@@ -28,6 +29,7 @@ export function Header() {
           <span className="spark-text">Museboard</span>
         </Link>
         <div className="flex items-center gap-2">
+          <CommandPalette />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" aria-label="Theme">
