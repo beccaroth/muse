@@ -42,3 +42,6 @@ export type ProjectUpdate = Partial<ProjectInsert> & { id: string };
 
 export type SeedInsert = Omit<Seed, 'id' | 'created_at' | 'updated_at'>;
 export type SeedUpdate = Partial<SeedInsert> & { id: string };
+
+export type TaskInsert = Omit<Task, 'id' | 'created_at' | 'updated_at'>;
+export type TaskUpdate = Partial<Omit<Task, 'id' | 'project_id' | 'created_at' | 'updated_at'>> & { id: string };

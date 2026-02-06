@@ -12,6 +12,7 @@ import { getTypeColor } from '@/lib/constants';
 import { ChevronLeft, Pencil, Trash2, Calendar } from 'lucide-react';
 import { format } from 'date-fns';
 import { ProjectNotes } from './ProjectNotes';
+import { ProjectTasks } from './ProjectTasks';
 import { Loading } from '@/components/ui/loading';
 import { cn } from '@/lib/utils';
 
@@ -116,6 +117,9 @@ export function ProjectPage() {
           </p>
         </div>
       )}
+
+      {/* Tasks */}
+      <ProjectTasks projectId={project.id} />
 
       {/* Notes */}
       <ProjectNotes project={project} />
