@@ -93,7 +93,7 @@ export function LoginPage() {
               )}
             </div>
           </CardContent>
-          <CardFooter>
+          <CardFooter className="flex flex-col gap-2">
             {error && (
               <p className="text-sm text-destructive text-center">{error}</p>
             )}
