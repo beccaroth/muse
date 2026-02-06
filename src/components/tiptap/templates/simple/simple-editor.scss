@@ -18,3 +18,16 @@
   min-height: 120px;
   outline: none;
 }
+
+// Compact toolbar that stays sticky on mobile instead of going absolute
+.notes-toolbar.tiptap-toolbar[data-variant="fixed"] {
+  @media (max-width: 480px) {
+    position: sticky;
+    top: 0;
+    height: auto;
+    min-height: var(--tt-toolbar-height);
+    border-bottom: 1px solid var(--tt-toolbar-border-color);
+    border-top: none;
+    padding: 0 0.5rem;
+  }
+}
