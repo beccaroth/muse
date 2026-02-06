@@ -1,13 +1,14 @@
-import { Lightbulb, Plus } from 'lucide-react';
-import { Section } from '@/components/layout/Section';
-import { Button } from '@/components/ui/button';
-import { SeedsTable } from './SeedsTable';
-import { SeedForm } from './SeedForm';
-import { useViewStore } from '@/stores/viewStore';
-import { useSeeds } from '@/hooks/useSeeds';
+import { Lightbulb, Plus } from "lucide-react";
+import { Section } from "@/components/layout/Section";
+import { Button } from "@/components/ui/button";
+import { SeedsTable } from "./SeedsTable";
+import { SeedForm } from "./SeedForm";
+import { useViewStore } from "@/stores/viewStore";
+import { useSeeds } from "@/hooks/useSeeds";
 
-export function SeedsSection() {
-  const { setSeedFormOpen, isSeedFormOpen, editingSeed, setEditingSeed } = useViewStore();
+export function SeedsSection({ className }: { className?: string }) {
+  const { setSeedFormOpen, isSeedFormOpen, editingSeed, setEditingSeed } =
+    useViewStore();
   const { data: seeds, isLoading } = useSeeds();
 
   return (
@@ -20,6 +21,7 @@ export function SeedsSection() {
           New Seed
         </Button>
       }
+      className={className}
     >
       <SeedsTable seeds={seeds ?? []} isLoading={isLoading} />
 
