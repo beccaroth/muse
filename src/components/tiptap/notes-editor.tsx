@@ -37,6 +37,7 @@ import { HeadingDropdownMenu } from '@/components/tiptap/ui/heading-dropdown-men
 import { ListDropdownMenu } from '@/components/tiptap/ui/list-dropdown-menu';
 import { LinkPopover } from '@/components/tiptap/ui/link-popover';
 import { UndoRedoButton } from '@/components/tiptap/ui/undo-redo-button';
+import { FloatingToolbar } from '@/components/tiptap/ui/floating-toolbar';
 
 // --- Hooks ---
 import { useIsBreakpoint } from '@/hooks/use-is-breakpoint';
@@ -144,6 +145,7 @@ export function NotesEditor({
     <div className="simple-editor-wrapper">
       <EditorContext.Provider value={{ editor }}>
         <NotesToolbar />
+        <FloatingToolbar />
         <EditorContent
           editor={editor}
           role="presentation"
