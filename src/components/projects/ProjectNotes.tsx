@@ -1,6 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { useUpdateProject } from '@/hooks/useProjects';
-import { SimpleEditor } from '@/components/tiptap-templates/simple/simple-editor';
+import { SimpleEditor } from '@/components/tiptap/templates/simple/simple-editor';
 import type { Project } from '@/types';
 
 const DEBOUNCE_MS = 1500;
