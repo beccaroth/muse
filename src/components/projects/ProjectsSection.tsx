@@ -5,7 +5,6 @@ import {
   LayoutGrid,
   Eye,
   EyeOff,
-  Lightbulb,
 } from "lucide-react";
 import { Section } from "@/components/layout/Section";
 import { Button } from "@/components/ui/button";

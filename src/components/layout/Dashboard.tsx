@@ -2,12 +2,11 @@ import { FolderKanban, Lightbulb } from "lucide-react";
 import { ProjectsSection } from "@/components/projects/ProjectsSection";
 import { SeedsSection } from "@/components/seeds/SeedsSection";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
 import { useViewStore } from "@/stores/viewStore";
 import { cn } from "@/lib/utils";
 
 export function Dashboard() {
-  const { showSeeds, setShowSeeds, mobileDashboardTab, setMobileDashboardTab } =
+  const { showSeeds, mobileDashboardTab, setMobileDashboardTab } =
     useViewStore();
 
   return (
