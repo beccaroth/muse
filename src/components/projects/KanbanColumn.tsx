@@ -10,9 +10,10 @@ interface KanbanColumnProps {
   title: string;
   projects: Project[];
   colorType: 'priority' | 'status';
+  kanbanGroupBy: 'priority' | 'status';
 }
 
-export function KanbanColumn({ id, title, projects, colorType }: KanbanColumnProps) {
+export function KanbanColumn({ id, title, projects, colorType, kanbanGroupBy }: KanbanColumnProps) {
   const { setNodeRef, isOver } = useDroppable({
     id,
   });
@@ -43,7 +44,7 @@ export function KanbanColumn({ id, title, projects, colorType }: KanbanColumnPro
             No projects
           </div>
         ) : (
-          projects.map((project) => <KanbanCard key={project.id} project={project} />)
+          projects.map((project) => <KanbanCard key={project.id} project={project} kanbanGroupBy={kanbanGroupBy} />)
         )}
       </div>
     </div>

@@ -3,7 +3,7 @@ import { Toaster } from '@/components/ui/sonner';
 import { Header } from '@/components/layout/Header';
 import { useTheme } from '@/hooks/useTheme';
 import { useAuth } from '@/stores/authStore';
-import { Loader2 } from 'lucide-react';
+import { Loading } from '@/components/ui/loading';
 
 export function AppShell() {
   useTheme();
@@ -11,8 +11,8 @@ export function AppShell() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      <div className="min-h-screen bg-background">
+        <Loading className="py-20" />
       </div>
     );
   }

@@ -3,6 +3,7 @@ import { Dashboard } from '@/components/layout/Dashboard';
 import { AppShell, AuthenticatedLayout } from '@/components/layout/RootLayout';
 import { ProjectPage } from '@/components/projects/ProjectPage';
 import { LoginPage } from '@/components/auth/LoginPage';
+import { Loading } from '@/components/ui/loading';
 import type { AuthContext } from '@/stores/authStore';
 
 interface RouterContext {
@@ -70,6 +71,9 @@ export const router = createRouter({
   context: {
     auth: undefined!,  // Will be set by RouterProvider in main.tsx
   },
+  defaultPendingComponent: () => <Loading className="py-20" />,
+  defaultPendingMs: 500,
+  defaultPendingMinMs: 300,
 });
 
 // Type declaration for router

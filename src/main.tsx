@@ -4,6 +4,7 @@ import { RouterProvider } from '@tanstack/react-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { router } from './router';
 import { AuthProvider, useAuth } from './stores/authStore';
+import { Loading } from './components/ui/loading';
 import './index.css';
 
 const queryClient = new QueryClient({
@@ -19,7 +20,7 @@ function InnerApp() {
   const auth = useAuth();
 
   if (auth.isLoading) {
-    return null;
+    return <Loading className="min-h-screen" />;
   }
 
   return <RouterProvider router={router} context={{ auth }} />;

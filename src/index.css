@@ -366,6 +366,130 @@ body {
   }
 }
 
+/* Skeleton with imagination gradient tint */
+.imagination-skeleton {
+  background: linear-gradient(
+    90deg,
+    oklch(0.92 0.04 295 / 0.5),
+    oklch(0.94 0.04 305 / 0.4),
+    oklch(0.96 0.03 55 / 0.3),
+    oklch(0.94 0.04 305 / 0.4),
+    oklch(0.92 0.04 295 / 0.5)
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 2s ease-in-out infinite;
+}
+
+.dark .imagination-skeleton {
+  background: linear-gradient(
+    90deg,
+    oklch(0.25 0.06 295 / 0.5),
+    oklch(0.28 0.05 305 / 0.4),
+    oklch(0.3 0.04 55 / 0.3),
+    oklch(0.28 0.05 305 / 0.4),
+    oklch(0.25 0.06 295 / 0.5)
+  );
+  background-size: 200% 100%;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Loading spinner with gradient palette icon (CSS mask approach) */
+.loading-icon-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-icon {
+  background: linear-gradient(
+    135deg,
+    oklch(0.58 0.22 295) 0%,
+    oklch(0.65 0.2 305) 40%,
+    oklch(0.75 0.18 55) 100%
+  );
+  background-size: 200% 200%;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z'/%3E%3Ccircle cx='13.5' cy='6.5' r='.5' fill='black'/%3E%3Ccircle cx='17.5' cy='10.5' r='.5' fill='black'/%3E%3Ccircle cx='6.5' cy='12.5' r='.5' fill='black'/%3E%3Ccircle cx='8.5' cy='7.5' r='.5' fill='black'/%3E%3C/svg%3E") center / contain no-repeat;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z'/%3E%3Ccircle cx='13.5' cy='6.5' r='.5' fill='black'/%3E%3Ccircle cx='17.5' cy='10.5' r='.5' fill='black'/%3E%3Ccircle cx='6.5' cy='12.5' r='.5' fill='black'/%3E%3Ccircle cx='8.5' cy='7.5' r='.5' fill='black'/%3E%3C/svg%3E") center / contain no-repeat;
+  animation: loading-breathe 2s ease-in-out infinite, loading-gradient-shift 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 3px oklch(0.65 0.2 305 / 0.4));
+}
+
+.dark .loading-icon {
+  background-image: linear-gradient(
+    135deg,
+    oklch(0.74 0.2 295) 0%,
+    oklch(0.78 0.18 305) 40%,
+    oklch(0.82 0.18 55) 100%
+  );
+  filter: drop-shadow(0 0 5px oklch(0.78 0.18 305 / 0.5));
+}
+
+.loading-icon-wrapper::before {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    oklch(0.58 0.22 295),
+    oklch(0.65 0.2 305),
+    oklch(0.75 0.18 55),
+    oklch(0.65 0.2 305),
+    oklch(0.58 0.22 295 / 0)
+  );
+  mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #fff calc(100% - 2px));
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #fff calc(100% - 2px));
+  animation: loading-ring-spin 1.5s linear infinite;
+  opacity: 0.6;
+}
+
+.dark .loading-icon-wrapper::before {
+  background: conic-gradient(
+    from 0deg,
+    oklch(0.74 0.2 295),
+    oklch(0.78 0.18 305),
+    oklch(0.82 0.18 55),
+    oklch(0.78 0.18 305),
+    oklch(0.74 0.2 295 / 0)
+  );
+  opacity: 0.7;
+}
+
+@keyframes loading-breathe {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.85;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+}
+
+@keyframes loading-gradient-shift {
+  0%, 100% {
+    background-position: 0% 0%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+}
+
+@keyframes loading-ring-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* Subtle border gradient for special containers */
 .border-imagination {
   border: 1px solid transparent;

@@ -12,6 +12,7 @@ import { getTypeColor } from '@/lib/constants';
 import { ChevronLeft, Pencil, Trash2, Calendar } from 'lucide-react';
 import { format } from 'date-fns';
 import { ProjectNotes } from './ProjectNotes';
+import { Loading } from '@/components/ui/loading';
 import { cn } from '@/lib/utils';
 
 export function ProjectPage() {
@@ -30,11 +31,7 @@ export function ProjectPage() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <div className="text-muted-foreground">Loading project...</div>
-      </div>
-    );
+    return <Loading className="py-20" />;
   }
 
   if (!project) {

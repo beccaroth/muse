@@ -7,6 +7,7 @@ import { PROJECT_PRIORITIES, PROJECT_STATUSES } from '@/lib/constants';
 import { useUpdateProject } from '@/hooks/useProjects';
 import { useViewStore } from '@/stores/viewStore';
 import type { Project } from '@/types';
+import { Skeleton } from '@/components/ui/skeleton';
 import type { ProjectPriority, ProjectStatus } from '@/lib/constants';
 
 interface ProjectKanbanProps {
@@ -85,8 +86,27 @@ export function ProjectKanban({ projects, isLoading }: ProjectKanbanProps) {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-32 text-muted-foreground">
-        Loading projects...
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {Array.from({ length: 3 }).map((_, col) => (
+          <div key={col} className="flex flex-col rounded-lg bg-muted/50 p-3 min-h-[300px]">
+            <div className="flex items-center gap-2 mb-3">
+              <Skeleton className="h-3 w-3 rounded-full imagination-skeleton" />
+              <Skeleton className="h-4 w-16 imagination-skeleton" />
+            </div>
+            <div className="flex flex-col gap-2">
+              {Array.from({ length: 2 - col % 2 }).map((_, i) => (
+                <div key={i} className="rounded-lg border bg-card p-4 space-y-3">
+                  <Skeleton className="h-4 w-3/4 imagination-skeleton" />
+                  <Skeleton className="h-3 w-1/2 imagination-skeleton" />
+                  <div className="flex gap-1">
+                    <Skeleton className="h-5 w-14 rounded-full imagination-skeleton" />
+                  </div>
+                  <Skeleton className="h-2 w-full rounded-full imagination-skeleton" />
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
       </div>
     );
   }
@@ -102,6 +122,7 @@ export function ProjectKanban({ projects, isLoading }: ProjectKanbanProps) {
               title={priority}
               projects={projectsByPriority[priority]}
               colorType="priority"
+              kanbanGroupBy={kanbanGroupBy}
             />
           ))}
         </div>
@@ -114,6 +135,7 @@ export function ProjectKanban({ projects, isLoading }: ProjectKanbanProps) {
               title={status}
               projects={projectsByStatus[status]}
               colorType="status"
+              kanbanGroupBy={kanbanGroupBy}
             />
           ))}
         </div>

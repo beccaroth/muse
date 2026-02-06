@@ -15,6 +15,7 @@ import { getTypeColor } from '@/lib/constants';
 import { useViewStore } from '@/stores/viewStore';
 import { useDeleteSeed } from '@/hooks/useSeeds';
 import { usePromoteSeedWithUndo } from '@/hooks/usePromoteSeedWithUndo';
+import { Loading } from '@/components/ui/loading';
 import type { Seed } from '@/types';
 import { cn } from '@/lib/utils';
 
@@ -118,11 +119,7 @@ const columns: ColumnDef<Seed>[] = [
 
 export function SeedsTable({ seeds, isLoading }: SeedsTableProps) {
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-32 text-muted-foreground">
-        Loading seeds...
-      </div>
-    );
+    return <Loading size="sm" className="h-32" />;
   }
 
   return (

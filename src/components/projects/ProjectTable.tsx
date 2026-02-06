@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 import { ProgressBar } from './ProgressBar';
 import { StatusDot } from './StatusDot';
 import { DeleteProjectDialog } from './DeleteProjectDialog';
@@ -147,8 +148,21 @@ export function ProjectTable({ projects, isLoading }: ProjectTableProps) {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-32 text-muted-foreground">
-        Loading projects...
+      <div className="rounded-md border">
+        <div className="border-b px-4 py-3 flex gap-6">
+          {['w-32', 'w-20', 'w-16', 'w-20', 'w-24'].map((w, i) => (
+            <Skeleton key={i} className={`h-4 ${w} imagination-skeleton`} />
+          ))}
+        </div>
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="border-b last:border-0 px-4 py-3 flex items-center gap-6">
+            <Skeleton className="h-4 w-32 imagination-skeleton" />
+            <Skeleton className="h-4 w-20 imagination-skeleton" />
+            <Skeleton className="h-5 w-16 rounded-full imagination-skeleton" />
+            <Skeleton className="h-5 w-14 rounded-full imagination-skeleton" />
+            <Skeleton className="h-2 w-24 rounded-full imagination-skeleton" />
+          </div>
+        ))}
       </div>
     );
   }
