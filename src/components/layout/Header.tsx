@@ -1,5 +1,5 @@
 import { Link, useNavigate, useRouter } from '@tanstack/react-router';
-import { Palette, Lightbulb, Monitor, Moon, Sun, Plus, LogOut } from 'lucide-react';
+import { Palette, Monitor, Moon, Sun, Plus, LogOut } from 'lucide-react';
 import { useAuth } from '@/stores/authStore';
 import { Button } from '@/components/ui/button';
 import {
@@ -10,12 +10,11 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useViewStore } from '@/stores/viewStore';
-import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';
 import { AddNewModal } from './AddNewModal';
 
 export function Header() {
-  const { showSeeds, setShowSeeds, setAddNewOpen } = useViewStore();
+  const { setAddNewOpen } = useViewStore();
   const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
   const router = useRouter();
@@ -67,21 +66,6 @@ export function Header() {
             aria-label="Add new"
           >
             <Plus className="h-5 w-5" />
-          </Button>
-          {/* Desktop: Seeds toggle button */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowSeeds(!showSeeds)}
-            className={cn(
-              'hidden sm:inline-flex transition-all',
-              showSeeds
-                ? 'text-accent-foreground bg-accent/50'
-                : 'text-muted-foreground hover:text-foreground'
-            )}
-          >
-            <Lightbulb className={cn("h-4 w-4 mr-1 transition-all", showSeeds && "text-accent drop-shadow-[0_0_4px_oklch(0.75_0.18_55/0.6)]")} />
-            Seeds
           </Button>
           <Button
             variant="ghost"
