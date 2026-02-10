@@ -1,5 +1,6 @@
 import { DndContext, DragOverlay, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
+import { arrayMove } from '@dnd-kit/sortable';
 import { useState } from 'react';
 import { KanbanColumn } from './KanbanColumn';
 import { KanbanCard } from './KanbanCard';
@@ -15,10 +16,23 @@ interface ProjectKanbanProps {
   isLoading: boolean;
 }
 
+function sortByCardOrder(projects: Project[], order: string[] | undefined): Project[] {
+  if (!order || order.length === 0) return projects;
+  const indexMap = new Map(order.map((id, i) => [id, i]));
+  return [...projects].sort((a, b) => {
+    const ai = indexMap.get(a.id);
+    const bi = indexMap.get(b.id);
+    if (ai === undefined && bi === undefined) return 0;
+    if (ai === undefined) return 1;
+    if (bi === undefined) return -1;
+    return ai - bi;
+  });
+}
+
 export function ProjectKanban({ projects, isLoading }: ProjectKanbanProps) {
   const [activeProject, setActiveProject] = useState<Project | null>(null);
   const updateProject = useUpdateProject();
-  const { kanbanGroupBy, showDoneColumn } = useViewStore();
+  const { kanbanGroupBy, showDoneColumn, kanbanCardOrder, setKanbanCardOrder } = useViewStore();
 
   // Configure sensors with activation constraint so clicks work
   const sensors = useSensors(
@@ -41,7 +55,10 @@ export function ProjectKanban({ projects, isLoading }: ProjectKanbanProps) {
 
   const projectsByPriority = PROJECT_PRIORITIES.reduce(
     (acc, priority) => {
-      acc[priority] = filteredProjects.filter((p) => p.priority === priority);
+      acc[priority] = sortByCardOrder(
+        filteredProjects.filter((p) => p.priority === priority),
+        kanbanCardOrder[priority]
+      );
       return acc;
     },
     {} as Record<ProjectPriority, Project[]>
@@ -49,7 +66,10 @@ export function ProjectKanban({ projects, isLoading }: ProjectKanbanProps) {
 
   const projectsByStatus = statusesToShow.reduce(
     (acc, status) => {
-      acc[status] = projects.filter((p) => p.status === status);
+      acc[status] = sortByCardOrder(
+        projects.filter((p) => p.status === status),
+        kanbanCardOrder[status]
+      );
       return acc;
     },
     {} as Record<ProjectStatus, Project[]>
@@ -67,10 +87,30 @@ export function ProjectKanban({ projects, isLoading }: ProjectKanbanProps) {
     if (!over) return;
 
     const projectId = active.id as string;
+    const overId = over.id as string;
     const project = projects.find((p) => p.id === projectId);
 
     if (!project) return;
 
+    // Determine which column the dragged card belongs to
+    const sourceCol = kanbanGroupBy === 'priority' ? project.priority : project.status;
+    const sourceProjects = kanbanGroupBy === 'priority'
+      ? projectsByPriority[project.priority]
+      : projectsByStatus[project.status];
+
+    // Check if dropped on a card in the same column (reorder)
+    const sourceIds = sourceProjects.map((p) => p.id);
+    const oldIndex = sourceIds.indexOf(projectId);
+    const newIndex = sourceIds.indexOf(overId);
+
+    if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
+      // Same-column reorder
+      const newIds = arrayMove(sourceIds, oldIndex, newIndex);
+      setKanbanCardOrder({ ...kanbanCardOrder, [sourceCol]: newIds });
+      return;
+    }
+
+    // Cross-column move (dropped on a column or a card in another column)
     if (kanbanGroupBy === 'priority') {
       const newPriority = over.id as ProjectPriority;
       if (project.priority !== newPriority) {

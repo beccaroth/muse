@@ -1,4 +1,4 @@
-import { useDraggable } from "@dnd-kit/core";
+import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Link } from "@tanstack/react-router";
 import { Pencil, MoreVertical } from "lucide-react";
@@ -40,16 +40,22 @@ export function KanbanCard({ project, isDragging, kanbanGroupBy }: KanbanCardPro
   const { setEditingProject } = useViewStore();
   const updateProject = useUpdateProject();
   const isMobile = useIsBreakpoint("max", 640);
-  const { attributes, listeners, setNodeRef, transform } = useDraggable({
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging: isSortableDragging,
+  } = useSortable({
     id: project.id,
     disabled: isMobile,
   });
 
-  const style = transform
-    ? {
-        transform: CSS.Translate.toString(transform),
-      }
-    : undefined;
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
 
   const handleStatusChange = (status: ProjectStatus) => {
     if (project.status !== status) {
@@ -72,7 +78,7 @@ export function KanbanCard({ project, isDragging, kanbanGroupBy }: KanbanCardPro
       className={cn(
         "group relative transition-all hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-0.5",
         !isMobile && "cursor-grab active:cursor-grabbing",
-        isDragging && "opacity-50 shadow-xl shadow-primary/20 scale-[1.02]",
+        (isDragging || isSortableDragging) && "opacity-50 shadow-xl shadow-primary/20 scale-[1.02]",
       )}
     >
       <CardHeader>

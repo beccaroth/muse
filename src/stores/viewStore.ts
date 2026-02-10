@@ -4,6 +4,21 @@ type ViewType = 'table' | 'kanban';
 type KanbanGroupBy = 'priority' | 'status';
 type MobileDashboardTab = 'projects' | 'seeds';
 
+const CARD_ORDER_KEY = 'muse-kanban-card-order';
+
+// Maps column id (e.g. "Now", "In progress") to ordered array of project IDs
+type KanbanCardOrder = Record<string, string[]>;
+
+const getInitialCardOrder = (): KanbanCardOrder => {
+  if (typeof window === 'undefined') return {};
+  try {
+    const stored = window.localStorage.getItem(CARD_ORDER_KEY);
+    return stored ? JSON.parse(stored) : {};
+  } catch {
+    return {};
+  }
+};
+
 interface ViewState {
   projectsView: ViewType;
   setProjectsView: (view: ViewType) => void;
@@ -29,6 +44,8 @@ interface ViewState {
   setMobileDashboardTab: (tab: MobileDashboardTab) => void;
   isAddNewOpen: boolean;
   setAddNewOpen: (open: boolean) => void;
+  kanbanCardOrder: KanbanCardOrder;
+  setKanbanCardOrder: (order: KanbanCardOrder) => void;
 }
 
 export const useViewStore = create<ViewState>((set) => ({
@@ -56,4 +73,11 @@ export const useViewStore = create<ViewState>((set) => ({
   setMobileDashboardTab: (tab) => set({ mobileDashboardTab: tab }),
   isAddNewOpen: false,
   setAddNewOpen: (open) => set({ isAddNewOpen: open }),
+  kanbanCardOrder: getInitialCardOrder(),
+  setKanbanCardOrder: (order) => {
+    set({ kanbanCardOrder: order });
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(CARD_ORDER_KEY, JSON.stringify(order));
+    }
+  },
 }));
