@@ -24,13 +24,30 @@ export function Header() {
   return (
     <header className="border-b bg-background/80 backdrop-blur-sm sticky top-0 z-40">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-        <Link
-          to="/"
-          className="text-xl sm:text-2xl font-bold flex items-center gap-2 hover:opacity-80 transition-opacity"
-        >
-          <Palette className="h-6 w-6 text-primary" />
-          <span className="spark-text">Museboard</span>
-        </Link>
+        <div className="flex items-center gap-6">
+          <Link
+            to="/"
+            className="text-xl sm:text-2xl font-bold flex items-center gap-2 hover:opacity-80 transition-opacity"
+          >
+            <Palette className="h-6 w-6 text-primary" />
+            <span className="spark-text">Museboard</span>
+          </Link>
+          <nav className="hidden sm:flex items-center gap-1">
+            <Link
+              to="/"
+              activeOptions={{ exact: true }}
+              className="text-sm font-medium px-3 py-1.5 rounded-md transition-colors text-muted-foreground hover:text-foreground [&.active]:bg-accent [&.active]:text-foreground"
+            >
+              Dashboard
+            </Link>
+            <Link
+              to="/tasks"
+              className="text-sm font-medium px-3 py-1.5 rounded-md transition-colors text-muted-foreground hover:text-foreground [&.active]:bg-accent [&.active]:text-foreground"
+            >
+              Tasks
+            </Link>
+          </nav>
+        </div>
         <div className="flex items-center gap-2">
           <CommandPalette />
           {/* Mobile: Plus button to add new project or seed */}

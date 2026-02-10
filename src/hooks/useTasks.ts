@@ -18,6 +18,20 @@ export function useTasks(projectId: string) {
   });
 }
 
+export function useAllTasks() {
+  return useQuery({
+    queryKey: ['tasks'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('tasks')
+        .select('*')
+        .order('sort_order', { ascending: true });
+      if (error) throw error;
+      return data as Task[];
+    },
+  });
+}
+
 export function useCreateTask() {
   const queryClient = useQueryClient();
   return useMutation({

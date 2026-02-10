@@ -65,10 +65,20 @@ const projectRoute = createRoute({
   ),
 });
 
+// Tasks route
+const tasksRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: '/tasks',
+  component: lazyRouteComponent(
+    () => import('@/components/tasks/TasksPage'),
+    'TasksPage',
+  ),
+});
+
 // Route tree
 const routeTree = rootRoute.addChildren([
   loginRoute,
-  authenticatedRoute.addChildren([indexRoute, projectRoute]),
+  authenticatedRoute.addChildren([indexRoute, projectRoute, tasksRoute]),
 ]);
 
 // Create router
