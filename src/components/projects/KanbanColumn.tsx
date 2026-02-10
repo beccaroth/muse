@@ -1,4 +1,5 @@
 import { useDroppable } from '@dnd-kit/core';
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { KanbanCard } from './KanbanCard';
 import { PRIORITY_COLORS, STATUS_DOT_COLORS } from '@/lib/constants';
 import type { Project } from '@/types';
@@ -38,15 +39,17 @@ export function KanbanColumn({ id, title, projects, colorType, kanbanGroupBy }: 
         <h3 className="font-medium text-sm">{title}</h3>
         <span className="text-xs text-muted-foreground ml-auto">{projects.length}</span>
       </div>
-      <div className="flex flex-col gap-2 flex-1">
-        {projects.length === 0 ? (
-          <div className="flex items-center justify-center h-20 text-xs text-muted-foreground">
-            No projects
-          </div>
-        ) : (
-          projects.map((project) => <KanbanCard key={project.id} project={project} kanbanGroupBy={kanbanGroupBy} />)
-        )}
-      </div>
+      <SortableContext items={projects.map((p) => p.id)} strategy={verticalListSortingStrategy}>
+        <div className="flex flex-col gap-2 flex-1">
+          {projects.length === 0 ? (
+            <div className="flex items-center justify-center h-20 text-xs text-muted-foreground">
+              No projects
+            </div>
+          ) : (
+            projects.map((project) => <KanbanCard key={project.id} project={project} kanbanGroupBy={kanbanGroupBy} />)
+          )}
+        </div>
+      </SortableContext>
     </div>
   );
 }
