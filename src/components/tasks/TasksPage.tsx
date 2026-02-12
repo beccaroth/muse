@@ -8,6 +8,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Loading } from '@/components/ui/loading';
 import { X } from 'lucide-react';
+import { TaskDueDatePicker } from '@/components/calendar/TaskDueDatePicker';
 import { cn } from '@/lib/utils';
 import type { Task, Project } from '@/types';
 
@@ -141,6 +142,13 @@ function ProjectTaskGroup({
             >
               {task.title}
             </span>
+            <TaskDueDatePicker
+              dueDate={task.due_date}
+              onDateChange={(date) =>
+                updateTask.mutate({ id: task.id, projectId, due_date: date })
+              }
+              compact
+            />
             <button
               onClick={() => deleteTask(task)}
               className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
