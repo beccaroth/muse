@@ -4,6 +4,7 @@ import { Search } from 'lucide-react';
 import { useProjects } from '@/hooks/useProjects';
 import { STATUS_DOT_COLORS } from '@/lib/constants';
 import { Button } from '@/components/ui/button';
+import { Kbd } from '@/components/ui/kbd';
 import {
   CommandDialog,
   CommandEmpty,
@@ -39,14 +40,12 @@ export function CommandPalette() {
       <Button
         variant="outline"
         size="sm"
-        className="hidden sm:flex items-center gap-2 text-muted-foreground font-normal h-8"
+        className="group hidden sm:flex items-center gap-2 text-muted-foreground font-normal h-8 pr-2"
         onClick={() => setOpen(true)}
       >
         <Search className="h-3.5 w-3.5" />
         <span className="text-xs">Search projects...</span>
-        <kbd className="pointer-events-none ml-2 hidden select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
-          <span className="text-xs">⌘</span>K
-        </kbd>
+        <Kbd className="ml-1 group-hover:bg-accent-foreground/15 group-hover:text-accent-foreground">⌘K</Kbd>
       </Button>
       <Button
         variant="ghost"

@@ -41,7 +41,7 @@ function MobileNav() {
   const auth = useAuth();
 
   const navLinkClass =
-    "flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors text-muted-foreground hover:text-foreground hover:bg-accent [&.active]:bg-accent [&.active]:text-foreground";
+    "flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors text-muted-foreground hover:text-accent-foreground hover:bg-accent [&.active]:bg-accent [&.active]:text-accent-foreground";
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -78,7 +78,7 @@ function MobileNav() {
         <div className="border-t mx-2 my-2" />
         <div className="flex flex-col gap-1 px-2">
           <button
-            className="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors text-muted-foreground hover:text-foreground hover:bg-accent w-full text-left"
+            className="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors text-muted-foreground hover:text-accent-foreground hover:bg-accent w-full text-left"
             onClick={() => {
               setOpen(false);
               setAddNewOpen(true);
@@ -114,7 +114,7 @@ function MobileNav() {
         </div>
         <div className="mt-auto border-t mx-2 pt-2">
           <button
-            className="flex items-center gap-3 px-5 py-2 rounded-md text-sm font-medium transition-colors text-muted-foreground hover:text-foreground hover:bg-accent w-full text-left"
+            className="flex items-center gap-3 px-5 py-2 rounded-md text-sm font-medium transition-colors text-muted-foreground hover:text-accent-foreground hover:bg-accent w-full text-left"
             onClick={async () => {
               setOpen(false);
               await auth.logout();
@@ -153,13 +153,13 @@ export function Header() {
             <Link
               to="/"
               activeOptions={{ exact: true }}
-              className="text-sm font-medium px-3 py-1.5 rounded-md transition-colors text-muted-foreground hover:text-foreground [&.active]:bg-accent [&.active]:text-foreground"
+              className="text-sm font-medium px-3 py-1.5 rounded-md transition-colors text-muted-foreground hover:text-foreground [&.active]:bg-accent [&.active]:text-accent-foreground"
             >
               Dashboard
             </Link>
             <Link
               to="/tasks"
-              className="text-sm font-medium px-3 py-1.5 rounded-md transition-colors text-muted-foreground hover:text-foreground [&.active]:bg-accent [&.active]:text-foreground"
+              className="text-sm font-medium px-3 py-1.5 rounded-md transition-colors text-muted-foreground hover:text-foreground [&.active]:bg-accent [&.active]:text-accent-foreground"
             >
               Tasks
             </Link>
