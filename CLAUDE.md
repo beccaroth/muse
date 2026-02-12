@@ -70,7 +70,7 @@ RLS enabled on all tables. Policies currently allow all authenticated users.
 
 - **Data hooks** return TanStack Query mutations with optimistic updates and cache invalidation
 - **Undo pattern:** `useDeleteProjectWithUndo`, `usePromoteSeedWithUndo` — optimistic update + 5s undo toast
-- **shadcn components:** Always add via `npx shadcn@latest add <component>`, never create manually
+- **shadcn components:** Use the shadcn MCP tools to look up components, view examples, and get install commands. Install via the CLI (e.g. `pnpm dlx shadcn@latest add <component>`). Never create shadcn components manually.
 - **Tailwind v4:** Uses `@plugin "@tailwindcss/typography"` syntax, oklch color variables
 - **Tiptap:** Memoize the `extensions` array with `useMemo` to prevent infinite re-render loops. Use `immediatelyRender: false` for SSR/strict-mode.
 - **Import aliases:** `@/components`, `@/hooks`, `@/lib`, `@/stores`, `@/types`
