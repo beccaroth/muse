@@ -18,10 +18,10 @@ Personal creative projects dashboard for organizing ideas and tracking progress.
 ## Commands
 
 ```
-npm run dev       # Start Vite dev server
-npm run build     # tsc -b && vite build
-npm run lint      # ESLint
-npm run preview   # Preview production build
+pnpm dev          # Start Vite dev server
+pnpm build        # tsc -b && vite build
+pnpm lint         # ESLint
+pnpm preview      # Preview production build
 ```
 
 ## Project Structure
