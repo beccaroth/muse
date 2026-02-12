@@ -10,7 +10,7 @@ export default function SeedsToggleButton() {
     <Button
       variant="outline"
       size="sm"
-      className="group"
+      className="group hidden md:inline-flex"
       onClick={() => setShowSeeds(!showSeeds)}
     >
       <Lightbulb
