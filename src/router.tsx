@@ -75,10 +75,20 @@ const tasksRoute = createRoute({
   ),
 });
 
+// Calendar route
+const calendarRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: '/calendar',
+  component: lazyRouteComponent(
+    () => import('@/components/calendar/CalendarPage'),
+    'CalendarPage',
+  ),
+});
+
 // Route tree
 const routeTree = rootRoute.addChildren([
   loginRoute,
-  authenticatedRoute.addChildren([indexRoute, projectRoute, tasksRoute]),
+  authenticatedRoute.addChildren([indexRoute, projectRoute, tasksRoute, calendarRoute]),
 ]);
 
 // Create router

@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Eye, EyeOff, Plus, X } from 'lucide-react';
+import { TaskDueDatePicker } from '@/components/calendar/TaskDueDatePicker';
 import { cn } from '@/lib/utils';
 
 interface ProjectTasksProps {
@@ -23,7 +24,7 @@ export function ProjectTasks({ projectId }: ProjectTasksProps) {
     const title = newTaskTitle.trim();
     if (!title) return;
     createTask.mutate(
-      { project_id: projectId, title, completed: false, sort_order: tasks.length },
+      { project_id: projectId, title, completed: false, sort_order: tasks.length, due_date: null },
       { onSuccess: () => setNewTaskTitle('') }
     );
   };
@@ -93,6 +94,13 @@ export function ProjectTasks({ projectId }: ProjectTasksProps) {
               >
                 {task.title}
               </span>
+              <TaskDueDatePicker
+                dueDate={task.due_date}
+                onDateChange={(date) =>
+                  updateTask.mutate({ id: task.id, projectId, due_date: date })
+                }
+                compact
+              />
               <button
                 onClick={() => deleteTask(task)}
                 className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"

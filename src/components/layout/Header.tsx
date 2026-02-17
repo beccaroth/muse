@@ -10,6 +10,7 @@ import {
   Menu,
   LayoutDashboard,
   CheckSquare,
+  CalendarDays,
 } from "lucide-react";
 import { useAuth } from "@/stores/authStore";
 import { Button } from "@/components/ui/button";
@@ -72,6 +73,12 @@ function MobileNav() {
             <Link to="/tasks" className={navLinkClass}>
               <CheckSquare className="h-4 w-4" />
               Tasks
+            </Link>
+          </SheetClose>
+          <SheetClose asChild>
+            <Link to="/calendar" className={navLinkClass}>
+              <CalendarDays className="h-4 w-4" />
+              Calendar
             </Link>
           </SheetClose>
         </nav>
@@ -162,6 +169,12 @@ export function Header() {
               className="text-sm font-medium px-3 py-1.5 rounded-md transition-colors text-muted-foreground hover:text-foreground [&.active]:bg-accent [&.active]:text-accent-foreground"
             >
               Tasks
+            </Link>
+            <Link
+              to="/calendar"
+              className="text-sm font-medium px-3 py-1.5 rounded-md transition-colors text-muted-foreground hover:text-foreground [&.active]:bg-accent [&.active]:text-accent-foreground"
+            >
+              Calendar
             </Link>
           </nav>
         </div>

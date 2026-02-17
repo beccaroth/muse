@@ -3,6 +3,7 @@ import { create } from 'zustand';
 type ViewType = 'table' | 'kanban';
 type KanbanGroupBy = 'priority' | 'status';
 type MobileDashboardTab = 'projects' | 'seeds';
+export type CalendarView = 'month' | 'week' | 'twelveWeek';
 
 const CARD_ORDER_KEY = 'muse-kanban-card-order';
 
@@ -46,6 +47,14 @@ interface ViewState {
   setAddNewOpen: (open: boolean) => void;
   kanbanCardOrder: KanbanCardOrder;
   setKanbanCardOrder: (order: KanbanCardOrder) => void;
+  calendarView: CalendarView;
+  setCalendarView: (view: CalendarView) => void;
+  calendarDate: string;
+  setCalendarDate: (date: string) => void;
+  calendarShowProjects: boolean;
+  setCalendarShowProjects: (show: boolean) => void;
+  calendarShowTasks: boolean;
+  setCalendarShowTasks: (show: boolean) => void;
 }
 
 export const useViewStore = create<ViewState>((set) => ({
@@ -80,4 +89,12 @@ export const useViewStore = create<ViewState>((set) => ({
       window.localStorage.setItem(CARD_ORDER_KEY, JSON.stringify(order));
     }
   },
+  calendarView: 'month',
+  setCalendarView: (view) => set({ calendarView: view }),
+  calendarDate: new Date().toISOString().split('T')[0],
+  setCalendarDate: (date) => set({ calendarDate: date }),
+  calendarShowProjects: true,
+  setCalendarShowProjects: (show) => set({ calendarShowProjects: show }),
+  calendarShowTasks: true,
+  setCalendarShowTasks: (show) => set({ calendarShowTasks: show }),
 }));

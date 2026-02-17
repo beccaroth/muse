@@ -33,9 +33,24 @@ export interface Task {
   title: string;
   completed: boolean;
   sort_order: number;
+  due_date: string | null;
   created_at: string;
   updated_at: string;
 }
+
+export interface TwelveWeekCycle {
+  id: string;
+  name: string;
+  start_date: string;
+  end_date: string;
+  goal: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export type TwelveWeekCycleInsert = Omit<TwelveWeekCycle, 'id' | 'created_at' | 'updated_at'>;
+export type TwelveWeekCycleUpdate = Partial<TwelveWeekCycleInsert> & { id: string };
 
 export type ProjectInsert = Omit<Project, 'id' | 'created_at' | 'updated_at'>;
 export type ProjectUpdate = Partial<ProjectInsert> & { id: string };
