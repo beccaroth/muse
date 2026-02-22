@@ -3,14 +3,18 @@ import { cn } from "@/lib/utils";
 import { Lightbulb } from "lucide-react";
 import { useViewStore } from "@/stores/viewStore";
 
-export default function SeedsToggleButton() {
+export default function SeedsToggleButton({
+  className,
+}: {
+  className?: string;
+}) {
   const { showSeeds, setShowSeeds } = useViewStore();
 
   return (
     <Button
       variant="outline"
       size="sm"
-      className="group"
+      className={cn("group", className)}
       onClick={() => setShowSeeds(!showSeeds)}
     >
       <Lightbulb
