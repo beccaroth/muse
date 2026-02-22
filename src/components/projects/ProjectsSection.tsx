@@ -48,7 +48,7 @@ export function ProjectsSection({ className }: { className?: string }) {
             <Plus className="h-4 w-4 mr-1" />
             New Project
           </Button>
-          <SeedsToggleButton />
+          <SeedsToggleButton className="hidden md:inline-flex" />
         </>
       }
       className={className}
