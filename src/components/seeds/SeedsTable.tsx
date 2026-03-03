@@ -10,10 +10,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal, Pencil, Trash2, ArrowRight } from 'lucide-react';
+import { MoreHorizontal, Pencil, Trash2, ArrowRight, Archive, Inbox } from 'lucide-react';
 import { getTypeColor } from '@/lib/constants';
 import { useViewStore } from '@/stores/viewStore';
-import { useDeleteSeed } from '@/hooks/useSeeds';
+import { useDeleteSeed, useUpdateSeed } from '@/hooks/useSeeds';
 import { usePromoteSeedWithUndo } from '@/hooks/usePromoteSeedWithUndo';
 import { Loading } from '@/components/ui/loading';
 import type { Seed } from '@/types';
@@ -27,7 +27,9 @@ interface SeedsTableProps {
 function ActionsCell({ seed }: { seed: Seed }) {
   const { setEditingSeed } = useViewStore();
   const deleteSeed = useDeleteSeed();
+  const updateSeed = useUpdateSeed();
   const { promoteSeed } = usePromoteSeedWithUndo();
+  const isArchived = seed.status === 'archived';
 
   return (
     <DropdownMenu>
@@ -40,6 +42,18 @@ function ActionsCell({ seed }: { seed: Seed }) {
         <DropdownMenuItem onClick={() => promoteSeed(seed)}>
           <ArrowRight className="h-4 w-4 mr-2" />
           Promote to Project
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={() =>
+            updateSeed.mutate({ id: seed.id, status: isArchived ? 'active' : 'archived' })
+          }
+        >
+          {isArchived ? (
+            <Inbox className="h-4 w-4 mr-2" />
+          ) : (
+            <Archive className="h-4 w-4 mr-2" />
+          )}
+          {isArchived ? 'Unarchive' : 'Archive'}
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => setEditingSeed(seed.id)}>
@@ -68,12 +82,12 @@ const columns: ColumnDef<Seed>[] = [
       const seed = row.original;
       return (
         <div>
-          <div className="font-medium flex items-center gap-2">
+          <div className={cn('font-medium flex items-center gap-2', seed.status === 'archived' && 'text-muted-foreground line-through')}>
             {seed.icon && <span>{seed.icon}</span>}
             {seed.title}
           </div>
           {seed.description && (
-            <div className="text-sm text-muted-foreground line-clamp-1">
+            <div className={cn('text-sm text-muted-foreground line-clamp-1', seed.status === 'archived' && 'opacity-70')}>
               {seed.description}
             </div>
           )}
