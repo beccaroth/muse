@@ -26,13 +26,36 @@ export function TasksPage() {
   );
 
   const grouped = useMemo(() => {
-    const filtered = showCompleted ? tasks : tasks.filter((t) => !t.completed);
-    const groups = new Map<string, Task[]>();
-    for (const task of filtered) {
-      const list = groups.get(task.project_id) ?? [];
-      list.push(task);
-      groups.set(task.project_id, list);
+    const groups = new Map<string, {
+      visibleTasks: Task[];
+      totalCount: number;
+      completedCount: number;
+    }>();
+
+    for (const task of tasks) {
+      const group = groups.get(task.project_id) ?? {
+        visibleTasks: [],
+        totalCount: 0,
+        completedCount: 0,
+      };
+
+      group.totalCount += 1;
+      if (task.completed) {
+        group.completedCount += 1;
+      }
+      if (showCompleted || !task.completed) {
+        group.visibleTasks.push(task);
+      }
+
+      groups.set(task.project_id, group);
     }
+
+    for (const [projectId, group] of groups.entries()) {
+      if (group.visibleTasks.length === 0) {
+        groups.delete(projectId);
+      }
+    }
+
     return groups;
   }, [tasks, showCompleted]);
 
@@ -75,14 +98,16 @@ export function TasksPage() {
         </p>
       ) : (
         <div className="space-y-6">
-          {[...grouped.entries()].map(([projectId, projectTasks]) => {
+          {[...grouped.entries()].map(([projectId, group]) => {
             const project = projectMap.get(projectId);
             return (
               <ProjectTaskGroup
                 key={projectId}
                 project={project}
                 projectId={projectId}
-                tasks={projectTasks}
+                tasks={group.visibleTasks}
+                totalCount={group.totalCount}
+                completedCount={group.completedCount}
                 updateTask={updateTask}
                 deleteTask={deleteTask}
               />
@@ -98,17 +123,19 @@ function ProjectTaskGroup({
   project,
   projectId,
   tasks,
+  totalCount,
+  completedCount,
   updateTask,
   deleteTask,
 }: {
   project: Project | undefined;
   projectId: string;
   tasks: Task[];
+  totalCount: number;
+  completedCount: number;
   updateTask: ReturnType<typeof useUpdateTask>;
   deleteTask: ReturnType<typeof useDeleteTaskWithUndo>['deleteTask'];
 }) {
-  const completedCount = tasks.filter((t) => t.completed).length;
-
   return (
     <div className="bg-card rounded-lg border p-6">
       <div className="flex items-center justify-between mb-3">
@@ -123,7 +150,7 @@ function ProjectTaskGroup({
           </h2>
         </Link>
         <span className="text-xs text-muted-foreground">
-          {completedCount}/{tasks.length} done
+          {completedCount}/{totalCount} done
         </span>
       </div>
       <ul className="space-y-2">
