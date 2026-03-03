@@ -134,28 +134,46 @@ export function TasksPage() {
 
   return (
     <main className="container mx-auto px-4 py-8">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-2">
-          <CheckSquare className="h-5 w-5 text-primary" />
-          <h1 className="text-lg font-semibold tracking-tight">Tasks</h1>
+      <div className="mb-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <CheckSquare className="h-5 w-5 text-primary" />
+            <h1 className="text-lg font-semibold tracking-tight">Tasks</h1>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant={isAddTaskOpen ? 'secondary' : 'default'}
+              size="sm"
+              onClick={handleToggleAddTask}
+              disabled={projects.length === 0}
+              className="text-xs"
+            >
+              <Plus className="h-3.5 w-3.5 mr-1" />
+              {isAddTaskOpen ? 'Cancel' : 'Add Task'}
+            </Button>
+            {completedCount > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowCompleted(!showCompleted)}
+                className="hidden text-muted-foreground text-xs h-auto py-1 px-2 sm:inline-flex"
+              >
+                {showCompleted ? (
+                  <><EyeOff className="h-3.5 w-3.5 mr-1" /> Hide completed</>
+                ) : (
+                  <><Eye className="h-3.5 w-3.5 mr-1" /> Show completed ({completedCount})</>
+                )}
+              </Button>
+            )}
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant={isAddTaskOpen ? 'secondary' : 'outline'}
-            size="sm"
-            onClick={handleToggleAddTask}
-            disabled={projects.length === 0}
-            className="text-xs"
-          >
-            <Plus className="h-3.5 w-3.5 mr-1" />
-            {isAddTaskOpen ? 'Cancel' : 'Add Task'}
-          </Button>
-          {completedCount > 0 && (
+        {completedCount > 0 && (
+          <div className="mt-2 flex sm:hidden">
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setShowCompleted(!showCompleted)}
-              className="text-muted-foreground text-xs h-auto py-1 px-2"
+              className="ml-auto text-muted-foreground text-xs h-auto py-1 px-0"
             >
               {showCompleted ? (
                 <><EyeOff className="h-3.5 w-3.5 mr-1" /> Hide completed</>
@@ -163,8 +181,8 @@ export function TasksPage() {
                 <><Eye className="h-3.5 w-3.5 mr-1" /> Show completed ({completedCount})</>
               )}
             </Button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       {isAddTaskOpen && (
