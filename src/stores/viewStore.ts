@@ -48,6 +48,8 @@ interface ViewState {
   setShowDoneColumn: (show: boolean) => void;
   showSeeds: boolean;
   setShowSeeds: (show: boolean) => void;
+  showArchivedSeeds: boolean;
+  setShowArchivedSeeds: (show: boolean) => void;
   selectedProjectId: string | null;
   setSelectedProjectId: (id: string | null) => void;
   viewingProject: string | null;
@@ -81,6 +83,8 @@ export const useViewStore = create<ViewState>((set) => ({
   setShowDoneColumn: (show) => set({ showDoneColumn: show }),
   showSeeds: true,
   setShowSeeds: (show) => set({ showSeeds: show }),
+  showArchivedSeeds: false,
+  setShowArchivedSeeds: (show) => set({ showArchivedSeeds: show }),
   selectedProjectId: null,
   setSelectedProjectId: (id) => set({ selectedProjectId: id }),
   viewingProject: null,

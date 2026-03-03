@@ -31,6 +31,7 @@ const seedSchema = z.object({
   icon: z.string().nullable(),
   description: z.string().nullable(),
   project_type: z.string().nullable(),
+  status: z.enum(['active', 'archived']),
   date_added: z.string(),
 });
 
@@ -65,6 +66,7 @@ export function SeedForm({ open, onOpenChange, seedId }: SeedFormProps) {
       icon: null,
       description: null,
       project_type: null,
+      status: 'active',
       date_added: new Date().toISOString().split('T')[0],
     },
   });
@@ -95,6 +97,7 @@ export function SeedForm({ open, onOpenChange, seedId }: SeedFormProps) {
         icon: seed.icon,
         description: seed.description,
         project_type: seed.project_type,
+        status: seed.status,
         date_added: seed.date_added,
       });
       if (seed.project_type && !(DEFAULT_PROJECT_TYPES as readonly string[]).includes(seed.project_type)) {
@@ -109,6 +112,7 @@ export function SeedForm({ open, onOpenChange, seedId }: SeedFormProps) {
         icon: null,
         description: null,
         project_type: null,
+        status: 'active',
         date_added: new Date().toISOString().split('T')[0],
       });
       setCustomTypes([]);

@@ -22,6 +22,7 @@ export interface Seed {
   icon: string | null;
   description: string | null;
   project_type: ProjectType | null;
+  status: 'active' | 'archived';
   date_added: string;
   created_at: string;
   updated_at: string;
