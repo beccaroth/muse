@@ -4,8 +4,9 @@ import { useDeleteTaskWithUndo } from '@/hooks/useDeleteTaskWithUndo';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
-import { Eye, EyeOff, Plus, X } from 'lucide-react';
+import { Check, Eye, EyeOff, Pencil, Plus, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useViewStore } from '@/stores/viewStore';
 
 interface ProjectTasksProps {
   projectId: string;
@@ -17,7 +18,10 @@ export function ProjectTasks({ projectId }: ProjectTasksProps) {
   const updateTask = useUpdateTask();
   const { deleteTask } = useDeleteTaskWithUndo();
   const [newTaskTitle, setNewTaskTitle] = useState('');
-  const [showCompleted, setShowCompleted] = useState(true);
+  const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
+  const [editingTaskTitle, setEditingTaskTitle] = useState('');
+  const showCompleted = useViewStore((state) => state.showCompletedTasks);
+  const setShowCompleted = useViewStore((state) => state.setShowCompletedTasks);
 
   const handleAddTask = () => {
     const title = newTaskTitle.trim();
@@ -37,6 +41,37 @@ export function ProjectTasks({ projectId }: ProjectTasksProps) {
 
   const completedCount = tasks.filter((t) => t.completed).length;
   const visibleTasks = showCompleted ? tasks : tasks.filter((t) => !t.completed);
+  const isSavingEdit = updateTask.isPending;
+
+  const startEditingTask = (task: { id: string; title: string }) => {
+    setEditingTaskId(task.id);
+    setEditingTaskTitle(task.title);
+  };
+
+  const cancelEditingTask = () => {
+    setEditingTaskId(null);
+    setEditingTaskTitle('');
+  };
+
+  const saveEditingTask = (taskId: string) => {
+    const title = editingTaskTitle.trim();
+    if (!title) return;
+
+    const currentTask = tasks.find((task) => task.id === taskId);
+    if (!currentTask) return;
+
+    if (currentTask.title === title) {
+      cancelEditingTask();
+      return;
+    }
+
+    updateTask.mutate(
+      { id: taskId, projectId, title },
+      {
+        onSuccess: () => cancelEditingTask(),
+      }
+    );
+  };
 
   return (
     <div className="bg-card rounded-lg border p-6 mb-6">
@@ -81,25 +116,73 @@ export function ProjectTasks({ projectId }: ProjectTasksProps) {
             <li key={task.id} className="group flex items-center gap-3">
               <Checkbox
                 checked={task.completed}
+                disabled={editingTaskId === task.id}
                 onCheckedChange={() =>
                   updateTask.mutate({ id: task.id, projectId, completed: !task.completed })
                 }
               />
-              <span
-                className={cn(
-                  'flex-1 text-sm',
-                  task.completed && 'line-through text-muted-foreground'
-                )}
-              >
-                {task.title}
-              </span>
-              <button
-                onClick={() => deleteTask(task)}
-                className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
-                aria-label={`Delete "${task.title}"`}
-              >
-                <X className="h-4 w-4" />
-              </button>
+              {editingTaskId === task.id ? (
+                <>
+                  <Input
+                    value={editingTaskTitle}
+                    onChange={(e) => setEditingTaskTitle(e.target.value)}
+                    className="h-8 flex-1 text-sm"
+                    autoFocus
+                    disabled={isSavingEdit}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        saveEditingTask(task.id);
+                      }
+                      if (e.key === 'Escape') {
+                        e.preventDefault();
+                        cancelEditingTask();
+                      }
+                    }}
+                  />
+                  <button
+                    onClick={() => saveEditingTask(task.id)}
+                    className="text-muted-foreground hover:text-foreground transition-colors"
+                    aria-label={`Save "${task.title}"`}
+                    disabled={isSavingEdit || !editingTaskTitle.trim()}
+                  >
+                    <Check className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={cancelEditingTask}
+                    className="text-muted-foreground hover:text-foreground transition-colors"
+                    aria-label={`Cancel editing "${task.title}"`}
+                    disabled={isSavingEdit}
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </>
+              ) : (
+                <>
+                  <span
+                    className={cn(
+                      'flex-1 text-sm',
+                      task.completed && 'line-through text-muted-foreground'
+                    )}
+                  >
+                    {task.title}
+                  </span>
+                  <button
+                    onClick={() => startEditingTask(task)}
+                    className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground"
+                    aria-label={`Edit "${task.title}"`}
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => deleteTask(task)}
+                    className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
+                    aria-label={`Delete "${task.title}"`}
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </>
+              )}
             </li>
           ))}
         </ul>

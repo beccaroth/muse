@@ -3,8 +3,11 @@ import { create } from 'zustand';
 type ViewType = 'table' | 'kanban';
 type KanbanGroupBy = 'priority' | 'status';
 type MobileDashboardTab = 'projects' | 'seeds';
+export type TaskProjectSortOption = 'name-asc' | 'name-desc' | 'newest' | 'oldest';
 
 const CARD_ORDER_KEY = 'muse-kanban-card-order';
+const SHOW_COMPLETED_TASKS_KEY = 'muse-show-completed-tasks';
+const TASK_PROJECT_SORT_KEY = 'muse-task-project-sort';
 
 // Maps column id (e.g. "Now", "In progress") to ordered array of project IDs
 type KanbanCardOrder = Record<string, string[]>;
@@ -17,6 +20,23 @@ const getInitialCardOrder = (): KanbanCardOrder => {
   } catch {
     return {};
   }
+};
+
+const getInitialShowCompletedTasks = (): boolean => {
+  if (typeof window === 'undefined') return true;
+  const stored = window.localStorage.getItem(SHOW_COMPLETED_TASKS_KEY);
+  if (stored === 'true') return true;
+  if (stored === 'false') return false;
+  return true;
+};
+
+const getInitialTaskProjectSort = (): TaskProjectSortOption => {
+  if (typeof window === 'undefined') return 'name-asc';
+  const stored = window.localStorage.getItem(TASK_PROJECT_SORT_KEY);
+  if (stored === 'name-asc' || stored === 'name-desc' || stored === 'newest' || stored === 'oldest') {
+    return stored;
+  }
+  return 'name-asc';
 };
 
 interface ViewState {
@@ -46,6 +66,10 @@ interface ViewState {
   setAddNewOpen: (open: boolean) => void;
   kanbanCardOrder: KanbanCardOrder;
   setKanbanCardOrder: (order: KanbanCardOrder) => void;
+  showCompletedTasks: boolean;
+  setShowCompletedTasks: (show: boolean) => void;
+  taskProjectSort: TaskProjectSortOption;
+  setTaskProjectSort: (sort: TaskProjectSortOption) => void;
 }
 
 export const useViewStore = create<ViewState>((set) => ({
@@ -78,6 +102,20 @@ export const useViewStore = create<ViewState>((set) => ({
     set({ kanbanCardOrder: order });
     if (typeof window !== 'undefined') {
       window.localStorage.setItem(CARD_ORDER_KEY, JSON.stringify(order));
+    }
+  },
+  showCompletedTasks: getInitialShowCompletedTasks(),
+  setShowCompletedTasks: (show) => {
+    set({ showCompletedTasks: show });
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(SHOW_COMPLETED_TASKS_KEY, String(show));
+    }
+  },
+  taskProjectSort: getInitialTaskProjectSort(),
+  setTaskProjectSort: (sort) => {
+    set({ taskProjectSort: sort });
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(TASK_PROJECT_SORT_KEY, sort);
     }
   },
 }));
