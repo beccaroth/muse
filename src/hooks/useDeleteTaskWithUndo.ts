@@ -24,6 +24,9 @@ export function useDeleteTaskWithUndo() {
       queryClient.setQueryData<Task[]>(['tasks', task.project_id], (old) =>
         old?.filter((t) => t.id !== task.id) ?? []
       );
+      queryClient.setQueryData<Task[]>(['tasks'], (old) =>
+        old?.filter((t) => t.id !== task.id) ?? []
+      );
 
       const timeoutId = setTimeout(async () => {
         const { error } = await supabase
@@ -33,6 +36,7 @@ export function useDeleteTaskWithUndo() {
 
         if (error) {
           queryClient.invalidateQueries({ queryKey: ['tasks', task.project_id] });
+          queryClient.invalidateQueries({ queryKey: ['tasks'] });
           toast.error('Failed to delete task');
         }
 
@@ -55,6 +59,12 @@ export function useDeleteTaskWithUndo() {
                 if (!old) return [restoredTask];
                 // Re-insert at original sort position
                 const updated = [...old, restoredTask];
+                updated.sort((a, b) => a.sort_order - b.sort_order);
+                return updated;
+              });
+              queryClient.setQueryData<Task[]>(['tasks'], (old) => {
+                if (!old) return [restoredTask];
+                const updated = [...old.filter((t) => t.id !== restoredTask.id), restoredTask];
                 updated.sort((a, b) => a.sort_order - b.sort_order);
                 return updated;
               });
