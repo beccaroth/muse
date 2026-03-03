@@ -74,8 +74,8 @@ export function useUpdateTask() {
       return data as Task;
     },
     onMutate: async ({ id, projectId, ...updates }) => {
-      await queryClient.cancelQueries({ queryKey: ['tasks', projectId] });
-      await queryClient.cancelQueries({ queryKey: ['tasks'] });
+      const cancelProjectTasks = queryClient.cancelQueries({ queryKey: ['tasks', projectId] });
+      const cancelAllTasks = queryClient.cancelQueries({ queryKey: ['tasks'] });
 
       const previous = queryClient.getQueryData<Task[]>(['tasks', projectId]);
       const previousAll = queryClient.getQueryData<Task[]>(['tasks']);
@@ -86,6 +86,8 @@ export function useUpdateTask() {
       queryClient.setQueryData<Task[]>(['tasks'], (old) =>
         old?.map((t) => (t.id === id ? { ...t, ...updates } : t)) ?? []
       );
+
+      await Promise.all([cancelProjectTasks, cancelAllTasks]);
       return { previous, previousAll, projectId };
     },
     onError: (_err, _vars, context) => {
