@@ -47,6 +47,7 @@ export function useCreateSeed() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['seeds'] });
+      queryClient.invalidateQueries({ queryKey: ['project-types'] });
     },
   });
 }
@@ -66,6 +67,7 @@ export function useUpdateSeed() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['seeds'] });
+      queryClient.invalidateQueries({ queryKey: ['project-types'] });
     },
   });
 }
@@ -82,6 +84,7 @@ export function useDeleteSeed() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['seeds'] });
+      queryClient.invalidateQueries({ queryKey: ['project-types'] });
     },
   });
 }
