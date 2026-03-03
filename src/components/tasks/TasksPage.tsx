@@ -1,12 +1,20 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Link } from '@tanstack/react-router';
-import { CheckSquare, Eye, EyeOff } from 'lucide-react';
-import { useAllTasks, useUpdateTask } from '@/hooks/useTasks';
+import { CheckSquare, Eye, EyeOff, Plus } from 'lucide-react';
+import { useAllTasks, useCreateTask, useUpdateTask } from '@/hooks/useTasks';
 import { useDeleteTaskWithUndo } from '@/hooks/useDeleteTaskWithUndo';
 import { useProjects } from '@/hooks/useProjects';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Loading } from '@/components/ui/loading';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useViewStore } from '@/stores/viewStore';
@@ -15,10 +23,15 @@ import type { Task, Project } from '@/types';
 export function TasksPage() {
   const { data: tasks = [], isLoading: tasksLoading } = useAllTasks();
   const { data: projects = [], isLoading: projectsLoading } = useProjects();
+  const createTask = useCreateTask();
   const updateTask = useUpdateTask();
   const { deleteTask } = useDeleteTaskWithUndo();
   const showCompleted = useViewStore((state) => state.showCompletedTasks);
   const setShowCompleted = useViewStore((state) => state.setShowCompletedTasks);
+  const [newTaskTitle, setNewTaskTitle] = useState('');
+  const [selectedProjectId, setSelectedProjectId] = useState<string>('');
+  const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
   const projectMap = useMemo(
     () => new Map(projects.map((p) => [p.id, p])),
@@ -61,6 +74,54 @@ export function TasksPage() {
 
   const completedCount = tasks.filter((t) => t.completed).length;
 
+  const handleToggleAddTask = () => {
+    setIsAddTaskOpen((open) => {
+      const nextOpen = !open;
+      if (!nextOpen) {
+        setFormError(null);
+      }
+      return nextOpen;
+    });
+  };
+
+  const handleAddTask = () => {
+    const title = newTaskTitle.trim();
+    if (!title) {
+      setFormError('Task title is required.');
+      return;
+    }
+    if (!selectedProjectId) {
+      setFormError('Please select a project.');
+      return;
+    }
+    setFormError(null);
+
+    const projectTaskCount = tasks.filter((task) => task.project_id === selectedProjectId).length;
+    createTask.mutate(
+      {
+        project_id: selectedProjectId,
+        title,
+        completed: false,
+        sort_order: projectTaskCount,
+      },
+      {
+        onSuccess: () => {
+          setNewTaskTitle('');
+          setSelectedProjectId('');
+          setIsAddTaskOpen(false);
+          setFormError(null);
+        },
+      },
+    );
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAddTask();
+    }
+  };
+
   if (tasksLoading || projectsLoading) {
     return <Loading className="py-20" />;
   }
@@ -72,25 +133,83 @@ export function TasksPage() {
           <CheckSquare className="h-5 w-5 text-primary" />
           <h1 className="text-lg font-semibold tracking-tight">Tasks</h1>
         </div>
-        {completedCount > 0 && (
+        <div className="flex items-center gap-2">
           <Button
-            variant="ghost"
+            variant={isAddTaskOpen ? 'secondary' : 'outline'}
             size="sm"
-            onClick={() => setShowCompleted(!showCompleted)}
-            className="text-muted-foreground text-xs h-auto py-1 px-2"
+            onClick={handleToggleAddTask}
+            disabled={projects.length === 0}
+            className="text-xs"
           >
-            {showCompleted ? (
-              <><EyeOff className="h-3.5 w-3.5 mr-1" /> Hide completed</>
-            ) : (
-              <><Eye className="h-3.5 w-3.5 mr-1" /> Show completed ({completedCount})</>
-            )}
+            <Plus className="h-3.5 w-3.5 mr-1" />
+            {isAddTaskOpen ? 'Cancel' : 'Add Task'}
           </Button>
-        )}
+          {completedCount > 0 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowCompleted(!showCompleted)}
+              className="text-muted-foreground text-xs h-auto py-1 px-2"
+            >
+              {showCompleted ? (
+                <><EyeOff className="h-3.5 w-3.5 mr-1" /> Hide completed</>
+              ) : (
+                <><Eye className="h-3.5 w-3.5 mr-1" /> Show completed ({completedCount})</>
+              )}
+            </Button>
+          )}
+        </div>
       </div>
+
+      {isAddTaskOpen && (
+        <div className="mb-6 rounded-lg border bg-card p-4 sm:p-6">
+          <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_220px_auto]">
+            <Input
+              placeholder="Add a task..."
+              value={newTaskTitle}
+              onChange={(e) => {
+                setNewTaskTitle(e.target.value);
+                if (formError) setFormError(null);
+              }}
+              onKeyDown={handleKeyDown}
+              disabled={createTask.isPending || projects.length === 0}
+            />
+            <Select
+              value={selectedProjectId}
+              onValueChange={(value) => {
+                setSelectedProjectId(value);
+                if (formError) setFormError(null);
+              }}
+              disabled={createTask.isPending || projects.length === 0}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select project" />
+              </SelectTrigger>
+              <SelectContent>
+                {projects.map((project) => (
+                  <SelectItem key={project.id} value={project.id}>
+                    {project.icon ? `${project.icon} ${project.project_name}` : project.project_name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button
+              type="button"
+              onClick={handleAddTask}
+              disabled={createTask.isPending || projects.length === 0}
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
+          </div>
+          {formError && (
+            <p className="mt-2 text-xs text-destructive">{formError}</p>
+          )}
+        </div>
+      )}
 
       {tasks.length === 0 ? (
         <p className="text-muted-foreground text-sm">
-          No tasks yet. Add tasks from a project page.
+          No tasks yet. Add one above.
         </p>
       ) : grouped.size === 0 ? (
         <p className="text-muted-foreground text-sm">
