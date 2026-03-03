@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link } from '@tanstack/react-router';
-import { CheckSquare, Eye, EyeOff, Plus } from 'lucide-react';
+import { Check, CheckSquare, Eye, EyeOff, Pencil, Plus, X } from 'lucide-react';
 import { useAllTasks, useCreateTask, useUpdateTask } from '@/hooks/useTasks';
 import { useDeleteTaskWithUndo } from '@/hooks/useDeleteTaskWithUndo';
 import { useProjects } from '@/hooks/useProjects';
@@ -15,7 +15,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useViewStore } from '@/stores/viewStore';
 import type { Task, Project } from '@/types';
@@ -279,6 +278,9 @@ function ProjectTaskGroup({
   updateTask: ReturnType<typeof useUpdateTask>;
   deleteTask: ReturnType<typeof useDeleteTaskWithUndo>['deleteTask'];
 }) {
+  const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
+  const [editingTaskTitle, setEditingTaskTitle] = useState('');
+
   const updateTaskCompletion = (task: Task, nextCompleted: boolean, withUndo: boolean) => {
     updateTask.mutate(
       { id: task.id, projectId, completed: nextCompleted },
@@ -308,6 +310,39 @@ function ProjectTaskGroup({
     updateTaskCompletion(task, !task.completed, true);
   };
 
+  const startEditingTask = (task: Task) => {
+    setEditingTaskId(task.id);
+    setEditingTaskTitle(task.title);
+  };
+
+  const cancelEditingTask = () => {
+    setEditingTaskId(null);
+    setEditingTaskTitle('');
+  };
+
+  const saveEditingTask = (taskId: string) => {
+    const title = editingTaskTitle.trim();
+    if (!title) return;
+
+    const currentTask = tasks.find((task) => task.id === taskId);
+    if (!currentTask) return;
+
+    if (currentTask.title === title) {
+      cancelEditingTask();
+      return;
+    }
+
+    updateTask.mutate(
+      { id: taskId, projectId, title },
+      {
+        onSuccess: () => cancelEditingTask(),
+        onError: () => {
+          toast.error('Failed to update task');
+        },
+      },
+    );
+  };
+
   return (
     <div className="bg-card rounded-lg border p-6">
       <div className="flex items-center justify-between mb-3">
@@ -330,23 +365,71 @@ function ProjectTaskGroup({
           <li key={task.id} className="group flex items-center gap-3">
             <Checkbox
               checked={task.completed}
+              disabled={editingTaskId === task.id}
               onCheckedChange={() => handleToggleTask(task)}
             />
-            <span
-              className={cn(
-                'flex-1 text-sm',
-                task.completed && 'line-through text-muted-foreground',
-              )}
-            >
-              {task.title}
-            </span>
-            <button
-              onClick={() => deleteTask(task)}
-              className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
-              aria-label={`Delete "${task.title}"`}
-            >
-              <X className="h-4 w-4" />
-            </button>
+            {editingTaskId === task.id ? (
+              <>
+                <Input
+                  value={editingTaskTitle}
+                  onChange={(e) => setEditingTaskTitle(e.target.value)}
+                  className="h-8 flex-1 text-sm"
+                  autoFocus
+                  disabled={updateTask.isPending}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      saveEditingTask(task.id);
+                    }
+                    if (e.key === 'Escape') {
+                      e.preventDefault();
+                      cancelEditingTask();
+                    }
+                  }}
+                />
+                <button
+                  onClick={() => saveEditingTask(task.id)}
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                  aria-label={`Save "${task.title}"`}
+                  disabled={updateTask.isPending || !editingTaskTitle.trim()}
+                >
+                  <Check className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={cancelEditingTask}
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                  aria-label={`Cancel editing "${task.title}"`}
+                  disabled={updateTask.isPending}
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </>
+            ) : (
+              <>
+                <span
+                  className={cn(
+                    'flex-1 text-sm',
+                    task.completed && 'line-through text-muted-foreground',
+                  )}
+                >
+                  {task.title}
+                </span>
+                <button
+                  onClick={() => startEditingTask(task)}
+                  className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground"
+                  aria-label={`Edit "${task.title}"`}
+                >
+                  <Pencil className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={() => deleteTask(task)}
+                  className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
+                  aria-label={`Delete "${task.title}"`}
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </>
+            )}
           </li>
         ))}
       </ul>
