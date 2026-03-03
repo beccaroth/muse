@@ -324,7 +324,7 @@ function ProjectTaskGroup({
             </span>
             <button
               onClick={() => deleteTask(task)}
-              className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
+              className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
               aria-label={`Delete "${task.title}"`}
             >
               <X className="h-4 w-4" />
