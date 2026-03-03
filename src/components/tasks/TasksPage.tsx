@@ -19,6 +19,7 @@ import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useViewStore } from '@/stores/viewStore';
 import type { Task, Project } from '@/types';
+import { toast } from 'sonner';
 
 export function TasksPage() {
   const { data: tasks = [], isLoading: tasksLoading } = useAllTasks();
@@ -106,10 +107,15 @@ export function TasksPage() {
       },
       {
         onSuccess: () => {
+          const projectName = projectMap.get(selectedProjectId)?.project_name ?? 'project';
+          toast.success(`"${title}" added to ${projectName}`);
           setNewTaskTitle('');
           setSelectedProjectId('');
           setIsAddTaskOpen(false);
           setFormError(null);
+        },
+        onError: () => {
+          toast.error('Failed to add task');
         },
       },
     );
@@ -255,6 +261,35 @@ function ProjectTaskGroup({
   updateTask: ReturnType<typeof useUpdateTask>;
   deleteTask: ReturnType<typeof useDeleteTaskWithUndo>['deleteTask'];
 }) {
+  const updateTaskCompletion = (task: Task, nextCompleted: boolean, withUndo: boolean) => {
+    updateTask.mutate(
+      { id: task.id, projectId, completed: nextCompleted },
+      {
+        onSuccess: () => {
+          const toastId = `task-complete-${task.id}`;
+          toast.success(nextCompleted ? `Completed "${task.title}"` : `Reopened "${task.title}"`, {
+            id: toastId,
+            action: withUndo
+              ? {
+                  label: 'Undo',
+                  onClick: () => {
+                    updateTaskCompletion(task, !nextCompleted, false);
+                  },
+                }
+              : undefined,
+          });
+        },
+        onError: () => {
+          toast.error('Failed to update task');
+        },
+      },
+    );
+  };
+
+  const handleToggleTask = (task: Task) => {
+    updateTaskCompletion(task, !task.completed, true);
+  };
+
   return (
     <div className="bg-card rounded-lg border p-6">
       <div className="flex items-center justify-between mb-3">
@@ -277,9 +312,7 @@ function ProjectTaskGroup({
           <li key={task.id} className="group flex items-center gap-3">
             <Checkbox
               checked={task.completed}
-              onCheckedChange={() =>
-                updateTask.mutate({ id: task.id, projectId, completed: !task.completed })
-              }
+              onCheckedChange={() => handleToggleTask(task)}
             />
             <span
               className={cn(
