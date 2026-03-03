@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link } from '@tanstack/react-router';
-import { Check, CheckSquare, Eye, EyeOff, Pencil, Plus, X } from 'lucide-react';
+import { ArrowUpDown, Check, CheckSquare, Eye, EyeOff, Pencil, Plus, X } from 'lucide-react';
 import { useAllTasks, useCreateTask, useUpdateTask } from '@/hooks/useTasks';
 import { useDeleteTaskWithUndo } from '@/hooks/useDeleteTaskWithUndo';
 import { useProjects } from '@/hooks/useProjects';
@@ -15,10 +15,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 import { useViewStore } from '@/stores/viewStore';
 import type { Task, Project } from '@/types';
 import { toast } from 'sonner';
+import type { TaskProjectSortOption } from '@/stores/viewStore';
 
 export function TasksPage() {
   const { data: tasks = [], isLoading: tasksLoading } = useAllTasks();
@@ -28,10 +36,19 @@ export function TasksPage() {
   const { deleteTask } = useDeleteTaskWithUndo();
   const showCompleted = useViewStore((state) => state.showCompletedTasks);
   const setShowCompleted = useViewStore((state) => state.setShowCompletedTasks);
+  const projectSort = useViewStore((state) => state.taskProjectSort);
+  const setProjectSort = useViewStore((state) => state.setTaskProjectSort);
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [selectedProjectId, setSelectedProjectId] = useState<string>('');
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+
+  const projectSortLabel: Record<TaskProjectSortOption, string> = {
+    'name-asc': 'A-Z',
+    'name-desc': 'Z-A',
+    newest: 'Newest',
+    oldest: 'Oldest',
+  };
 
   const projectMap = useMemo(
     () => new Map(projects.map((p) => [p.id, p])),
@@ -71,6 +88,40 @@ export function TasksPage() {
 
     return groups;
   }, [tasks, showCompleted]);
+
+  const sortedProjectGroups = useMemo(() => {
+    const collator = new Intl.Collator(undefined, { sensitivity: 'base', numeric: true });
+    const entries = [...grouped.entries()];
+
+    entries.sort(([projectIdA], [projectIdB]) => {
+      const projectA = projectMap.get(projectIdA);
+      const projectB = projectMap.get(projectIdB);
+
+      const projectNameA = projectA?.project_name ?? '';
+      const projectNameB = projectB?.project_name ?? '';
+      const projectCreatedAtA = projectA?.created_at ?? '';
+      const projectCreatedAtB = projectB?.created_at ?? '';
+
+      let comparison = 0;
+      if (projectSort === 'name-asc') {
+        comparison = collator.compare(projectNameA, projectNameB);
+      } else if (projectSort === 'name-desc') {
+        comparison = collator.compare(projectNameB, projectNameA);
+      } else if (projectSort === 'newest') {
+        comparison = projectCreatedAtA < projectCreatedAtB ? 1 : projectCreatedAtA > projectCreatedAtB ? -1 : 0;
+      } else {
+        comparison = projectCreatedAtA < projectCreatedAtB ? -1 : projectCreatedAtA > projectCreatedAtB ? 1 : 0;
+      }
+
+      if (comparison !== 0) {
+        return comparison;
+      }
+
+      return projectIdA.localeCompare(projectIdB);
+    });
+
+    return entries;
+  }, [grouped, projectMap, projectSort]);
 
   const completedCount = tasks.filter((t) => t.completed).length;
 
@@ -140,6 +191,25 @@ export function TasksPage() {
             <h1 className="text-lg font-semibold tracking-tight">Tasks</h1>
           </div>
           <div className="flex items-center gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="h-8 text-xs">
+                  <ArrowUpDown className="h-3.5 w-3.5 mr-1" />
+                  Sort: {projectSortLabel[projectSort]}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuRadioGroup
+                  value={projectSort}
+                  onValueChange={(value) => setProjectSort(value as TaskProjectSortOption)}
+                >
+                  <DropdownMenuRadioItem value="name-asc">Name (A-Z)</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="name-desc">Name (Z-A)</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="newest">Newest</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="oldest">Oldest</DropdownMenuRadioItem>
+                </DropdownMenuRadioGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Button
               variant={isAddTaskOpen ? 'secondary' : 'default'}
               size="sm"
@@ -240,7 +310,7 @@ export function TasksPage() {
         </p>
       ) : (
         <div className="space-y-6">
-          {[...grouped.entries()].map(([projectId, group]) => {
+          {sortedProjectGroups.map(([projectId, group]) => {
             const project = projectMap.get(projectId);
             return (
               <ProjectTaskGroup
