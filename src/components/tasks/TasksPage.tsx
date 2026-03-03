@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link } from '@tanstack/react-router';
-import { ArrowUpDown, Check, CheckSquare, Eye, EyeOff, Pencil, Plus, X } from 'lucide-react';
+import { ArrowUpDown, Check, CheckSquare, ChevronsUpDown, Eye, EyeOff, Pencil, Plus, X } from 'lucide-react';
 import { useAllTasks, useCreateTask, useUpdateTask } from '@/hooks/useTasks';
 import { useDeleteTaskWithUndo } from '@/hooks/useDeleteTaskWithUndo';
 import { useProjects } from '@/hooks/useProjects';
@@ -9,12 +9,14 @@ import { Button } from '@/components/ui/button';
 import { Loading } from '@/components/ui/loading';
 import { Input } from '@/components/ui/input';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -40,6 +42,7 @@ export function TasksPage() {
   const setProjectSort = useViewStore((state) => state.setTaskProjectSort);
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [selectedProjectId, setSelectedProjectId] = useState<string>('');
+  const [isProjectDropdownOpen, setIsProjectDropdownOpen] = useState(false);
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -54,6 +57,7 @@ export function TasksPage() {
     () => new Map(projects.map((p) => [p.id, p])),
     [projects],
   );
+  const selectedProject = selectedProjectId ? projectMap.get(selectedProjectId) : undefined;
 
   const grouped = useMemo(() => {
     const groups = new Map<string, {
@@ -267,25 +271,56 @@ export function TasksPage() {
               onKeyDown={handleKeyDown}
               disabled={createTask.isPending || projects.length === 0}
             />
-            <Select
-              value={selectedProjectId}
-              onValueChange={(value) => {
-                setSelectedProjectId(value);
-                if (formError) setFormError(null);
-              }}
-              disabled={createTask.isPending || projects.length === 0}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select project" />
-              </SelectTrigger>
-              <SelectContent>
-                {projects.map((project) => (
-                  <SelectItem key={project.id} value={project.id}>
-                    {project.icon ? `${project.icon} ${project.project_name}` : project.project_name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Popover open={isProjectDropdownOpen} onOpenChange={setIsProjectDropdownOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={isProjectDropdownOpen}
+                  className="w-full justify-between font-normal"
+                  disabled={createTask.isPending || projects.length === 0}
+                >
+                  <span className="truncate">
+                    {selectedProject
+                      ? (selectedProject.icon ? `${selectedProject.icon} ${selectedProject.project_name}` : selectedProject.project_name)
+                      : 'Select project'}
+                  </span>
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[220px] p-0">
+                <Command>
+                  <CommandInput placeholder="Search projects..." />
+                  <CommandList>
+                    <CommandEmpty>No project found.</CommandEmpty>
+                    <CommandGroup>
+                      {projects.map((project) => {
+                        const label = project.icon ? `${project.icon} ${project.project_name}` : project.project_name;
+                        return (
+                          <CommandItem
+                            key={project.id}
+                            value={label}
+                            onSelect={() => {
+                              setSelectedProjectId(project.id);
+                              setIsProjectDropdownOpen(false);
+                              if (formError) setFormError(null);
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                'mr-2 h-4 w-4',
+                                selectedProjectId === project.id ? 'opacity-100' : 'opacity-0',
+                              )}
+                            />
+                            {label}
+                          </CommandItem>
+                        );
+                      })}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
             <Button
               type="button"
               onClick={handleAddTask}
