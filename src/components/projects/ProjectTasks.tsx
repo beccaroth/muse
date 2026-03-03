@@ -6,6 +6,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Eye, EyeOff, Plus, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useViewStore } from '@/stores/viewStore';
 
 interface ProjectTasksProps {
   projectId: string;
@@ -17,7 +18,8 @@ export function ProjectTasks({ projectId }: ProjectTasksProps) {
   const updateTask = useUpdateTask();
   const { deleteTask } = useDeleteTaskWithUndo();
   const [newTaskTitle, setNewTaskTitle] = useState('');
-  const [showCompleted, setShowCompleted] = useState(true);
+  const showCompleted = useViewStore((state) => state.showCompletedTasks);
+  const setShowCompleted = useViewStore((state) => state.setShowCompletedTasks);
 
   const handleAddTask = () => {
     const title = newTaskTitle.trim();

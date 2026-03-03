@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { Link } from '@tanstack/react-router';
 import { CheckSquare, Eye, EyeOff } from 'lucide-react';
 import { useAllTasks, useUpdateTask } from '@/hooks/useTasks';
@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Loading } from '@/components/ui/loading';
 import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useViewStore } from '@/stores/viewStore';
 import type { Task, Project } from '@/types';
 
 export function TasksPage() {
@@ -16,7 +17,8 @@ export function TasksPage() {
   const { data: projects = [], isLoading: projectsLoading } = useProjects();
   const updateTask = useUpdateTask();
   const { deleteTask } = useDeleteTaskWithUndo();
-  const [showCompleted, setShowCompleted] = useState(true);
+  const showCompleted = useViewStore((state) => state.showCompletedTasks);
+  const setShowCompleted = useViewStore((state) => state.setShowCompletedTasks);
 
   const projectMap = useMemo(
     () => new Map(projects.map((p) => [p.id, p])),

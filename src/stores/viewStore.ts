@@ -5,6 +5,7 @@ type KanbanGroupBy = 'priority' | 'status';
 type MobileDashboardTab = 'projects' | 'seeds';
 
 const CARD_ORDER_KEY = 'muse-kanban-card-order';
+const SHOW_COMPLETED_TASKS_KEY = 'muse-show-completed-tasks';
 
 // Maps column id (e.g. "Now", "In progress") to ordered array of project IDs
 type KanbanCardOrder = Record<string, string[]>;
@@ -17,6 +18,14 @@ const getInitialCardOrder = (): KanbanCardOrder => {
   } catch {
     return {};
   }
+};
+
+const getInitialShowCompletedTasks = (): boolean => {
+  if (typeof window === 'undefined') return true;
+  const stored = window.localStorage.getItem(SHOW_COMPLETED_TASKS_KEY);
+  if (stored === 'true') return true;
+  if (stored === 'false') return false;
+  return true;
 };
 
 interface ViewState {
@@ -46,6 +55,8 @@ interface ViewState {
   setAddNewOpen: (open: boolean) => void;
   kanbanCardOrder: KanbanCardOrder;
   setKanbanCardOrder: (order: KanbanCardOrder) => void;
+  showCompletedTasks: boolean;
+  setShowCompletedTasks: (show: boolean) => void;
 }
 
 export const useViewStore = create<ViewState>((set) => ({
@@ -78,6 +89,13 @@ export const useViewStore = create<ViewState>((set) => ({
     set({ kanbanCardOrder: order });
     if (typeof window !== 'undefined') {
       window.localStorage.setItem(CARD_ORDER_KEY, JSON.stringify(order));
+    }
+  },
+  showCompletedTasks: getInitialShowCompletedTasks(),
+  setShowCompletedTasks: (show) => {
+    set({ showCompletedTasks: show });
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(SHOW_COMPLETED_TASKS_KEY, String(show));
     }
   },
 }));
