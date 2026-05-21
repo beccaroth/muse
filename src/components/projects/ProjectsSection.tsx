@@ -14,6 +14,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { FilterToggle } from "@/components/ui/filter-toggle";
+import { Separator } from "@/components/ui/separator";
 import { ProjectTable } from "./ProjectTable";
 import { ProjectKanban } from "./ProjectKanban";
 import { ProjectForm } from "./ProjectForm";
@@ -130,28 +131,31 @@ export function ProjectsSection({ className }: { className?: string }) {
                 </div>
 
                 {projectsView === "kanban" && (
-                  <div className="border-t px-3 py-2.5">
-                    <p className="pb-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                      Group by
-                    </p>
-                    <div className="grid grid-cols-2 gap-0.5 rounded-lg bg-muted p-0.5">
-                      {(["priority", "status"] as const).map((option) => (
-                        <button
-                          key={option}
-                          type="button"
-                          onClick={() => setKanbanGroupBy(option)}
-                          className={cn(
-                            "rounded-md px-2 py-1 text-xs font-medium capitalize transition-all",
-                            kanbanGroupBy === option
-                              ? "bg-background text-foreground shadow-sm"
-                              : "text-muted-foreground hover:text-foreground"
-                          )}
-                        >
-                          {option}
-                        </button>
-                      ))}
+                  <>
+                    <Separator />
+                    <div className="px-3 py-2.5">
+                      <p className="pb-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                        Group by
+                      </p>
+                      <div className="grid grid-cols-2 gap-0.5 rounded-lg bg-muted p-0.5">
+                        {(["priority", "status"] as const).map((option) => (
+                          <button
+                            key={option}
+                            type="button"
+                            onClick={() => setKanbanGroupBy(option)}
+                            className={cn(
+                              "rounded-md px-2 py-1 text-xs font-medium capitalize transition-all",
+                              kanbanGroupBy === option
+                                ? "bg-background text-foreground shadow-sm"
+                                : "text-muted-foreground hover:text-foreground"
+                            )}
+                          >
+                            {option}
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  </>
                 )}
               </PopoverContent>
             </Popover>
