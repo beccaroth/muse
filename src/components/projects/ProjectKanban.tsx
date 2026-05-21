@@ -32,7 +32,7 @@ function sortByCardOrder(projects: Project[], order: string[] | undefined): Proj
 export function ProjectKanban({ projects, isLoading }: ProjectKanbanProps) {
   const [activeProject, setActiveProject] = useState<Project | null>(null);
   const updateProject = useUpdateProject();
-  const { kanbanGroupBy, showDoneColumn, kanbanCardOrder, setKanbanCardOrder } = useViewStore();
+  const { kanbanGroupBy, showDoneColumn, hideOnHold, hideNotStarted, kanbanCardOrder, setKanbanCardOrder } = useViewStore();
 
   // Configure sensors with activation constraint so clicks work
   const sensors = useSensors(
@@ -48,10 +48,13 @@ export function ProjectKanban({ projects, isLoading }: ProjectKanbanProps) {
     ? projects.filter((p) => p.status !== 'Done')
     : projects;
 
-  // Get statuses to display based on showDoneColumn setting
-  const statusesToShow = showDoneColumn
-    ? PROJECT_STATUSES
-    : PROJECT_STATUSES.filter(s => s !== 'Done');
+  // Get statuses to display based on showDoneColumn and hide filters
+  const statusesToShow = PROJECT_STATUSES.filter(
+    (s) =>
+      (showDoneColumn || s !== 'Done') &&
+      (!hideOnHold || s !== 'On hold') &&
+      (!hideNotStarted || s !== 'Not started')
+  );
 
   const projectsByPriority = PROJECT_PRIORITIES.reduce(
     (acc, priority) => {
@@ -167,7 +170,7 @@ export function ProjectKanban({ projects, isLoading }: ProjectKanbanProps) {
           ))}
         </div>
       ) : (
-        <div className={`grid gap-4 grid-cols-1 sm:grid-cols-2 ${showDoneColumn ? 'lg:grid-cols-4' : 'lg:grid-cols-3'}`}>
+        <div className={`grid gap-4 grid-cols-1 sm:grid-cols-2 ${statusesToShow.length >= 4 ? 'lg:grid-cols-4' : 'lg:grid-cols-3'}`}>
           {statusesToShow.map((status) => (
             <KanbanColumn
               key={status}

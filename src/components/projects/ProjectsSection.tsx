@@ -5,6 +5,7 @@ import {
   LayoutGrid,
   Eye,
   EyeOff,
+  Filter,
 } from "lucide-react";
 import { Section } from "@/components/layout/Section";
 import { Button } from "@/components/ui/button";
@@ -16,11 +17,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import { ProjectTable } from "./ProjectTable";
 import { ProjectKanban } from "./ProjectKanban";
 import { ProjectForm } from "./ProjectForm";
 import { useViewStore } from "@/stores/viewStore";
 import { useProjects } from "@/hooks/useProjects";
+import { filterProjects } from "@/lib/projectFilters";
 import SeedsToggleButton from "../seeds/SeedsToggleButton";
 
 export function ProjectsSection({ className }: { className?: string }) {
@@ -31,12 +40,17 @@ export function ProjectsSection({ className }: { className?: string }) {
     setKanbanGroupBy,
     showDoneColumn,
     setShowDoneColumn,
+    hideOnHold,
+    setHideOnHold,
+    hideNotStarted,
+    setHideNotStarted,
     setProjectFormOpen,
     isProjectFormOpen,
     editingProject,
     setEditingProject,
   } = useViewStore();
   const { data: projects, isLoading } = useProjects();
+  const visibleProjects = filterProjects(projects ?? [], { hideOnHold, hideNotStarted });
 
   return (
     <Section
@@ -69,47 +83,92 @@ export function ProjectsSection({ className }: { className?: string }) {
             </TabsTrigger>
           </TabsList>
 
-          {projectsView === "kanban" && (
-            <div className="flex items-center gap-2">
-              <Select
-                value={kanbanGroupBy}
-                onValueChange={(v) =>
-                  setKanbanGroupBy(v as "priority" | "status")
-                }
-              >
-                <SelectTrigger className="w-full sm:w-[130px] h-8 text-xs">
-                  <SelectValue placeholder="Group by" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="priority">By Priority</SelectItem>
-                  <SelectItem value="status">By Status</SelectItem>
-                </SelectContent>
-              </Select>
-
-              {kanbanGroupBy === "status" && (
+          <div className="flex items-center gap-2">
+            <Popover>
+              <PopoverTrigger asChild>
                 <Button
-                  variant={showDoneColumn ? "default" : "outline"}
-                  size="sm"
-                  className="h-8 text-xs"
-                  onClick={() => setShowDoneColumn(!showDoneColumn)}
+                  variant={hideOnHold || hideNotStarted ? "default" : "outline"}
+                  size="icon"
+                  className="h-8 w-8"
+                  aria-label="Filter"
                 >
-                  {showDoneColumn ? (
-                    <Eye className="h-3 w-3 mr-1" />
-                  ) : (
-                    <EyeOff className="h-3 w-3 mr-1" />
-                  )}
-                  Done
+                  <Filter className="h-3 w-3" />
                 </Button>
-              )}
-            </div>
-          )}
+              </PopoverTrigger>
+              <PopoverContent align="end" className="w-56">
+                <div className="space-y-3">
+                  <p className="text-sm font-medium">Filters</p>
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="hide-on-hold"
+                      checked={hideOnHold}
+                      onCheckedChange={(checked) => setHideOnHold(checked === true)}
+                    />
+                    <Label htmlFor="hide-on-hold" className="text-sm font-normal">
+                      Hide on hold
+                    </Label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="hide-not-started"
+                      checked={hideNotStarted}
+                      onCheckedChange={(checked) => setHideNotStarted(checked === true)}
+                    />
+                    <Label htmlFor="hide-not-started" className="text-sm font-normal">
+                      Hide unstarted
+                    </Label>
+                  </div>
+
+                  {projectsView === "kanban" && (
+                    <div className="space-y-1.5">
+                      <Label className="text-sm font-normal">Group by</Label>
+                      <Select
+                        value={kanbanGroupBy}
+                        onValueChange={(v) =>
+                          setKanbanGroupBy(v as "priority" | "status")
+                        }
+                      >
+                        <SelectTrigger className="w-full h-8 text-xs">
+                          <SelectValue placeholder="Group by" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="priority">Priority</SelectItem>
+                          <SelectItem value="status">Status</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+                </div>
+              </PopoverContent>
+            </Popover>
+
+            {projectsView === "kanban" && (
+              <>
+                {kanbanGroupBy === "status" && (
+                  <Button
+                    variant={showDoneColumn ? "default" : "outline"}
+                    size="sm"
+                    className="h-8 text-xs"
+                    onClick={() => setShowDoneColumn(!showDoneColumn)}
+                  >
+                    {showDoneColumn ? (
+                      <Eye className="h-3 w-3 mr-1" />
+                    ) : (
+                      <EyeOff className="h-3 w-3 mr-1" />
+                    )}
+                    Done
+                  </Button>
+                )}
+              </>
+            )}
+          </div>
         </div>
 
         <TabsContent value="kanban" className="mt-0">
-          <ProjectKanban projects={projects ?? []} isLoading={isLoading} />
+          <ProjectKanban projects={visibleProjects} isLoading={isLoading} />
         </TabsContent>
         <TabsContent value="table" className="mt-0">
-          <ProjectTable projects={projects ?? []} isLoading={isLoading} />
+          <ProjectTable projects={visibleProjects} isLoading={isLoading} />
         </TabsContent>
       </Tabs>
 
