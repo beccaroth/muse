@@ -8,6 +8,8 @@ export type TaskProjectSortOption = 'name-asc' | 'name-desc' | 'newest' | 'oldes
 const CARD_ORDER_KEY = 'muse-kanban-card-order';
 const SHOW_COMPLETED_TASKS_KEY = 'muse-show-completed-tasks';
 const TASK_PROJECT_SORT_KEY = 'muse-task-project-sort';
+const HIDE_ON_HOLD_KEY = 'muse-hide-on-hold';
+const HIDE_NOT_STARTED_KEY = 'muse-hide-not-started';
 
 // Maps column id (e.g. "Now", "In progress") to ordered array of project IDs
 type KanbanCardOrder = Record<string, string[]>;
@@ -30,6 +32,16 @@ const getInitialShowCompletedTasks = (): boolean => {
   return true;
 };
 
+const getInitialHideOnHold = (): boolean => {
+  if (typeof window === 'undefined') return false;
+  return window.localStorage.getItem(HIDE_ON_HOLD_KEY) === 'true';
+};
+
+const getInitialHideNotStarted = (): boolean => {
+  if (typeof window === 'undefined') return false;
+  return window.localStorage.getItem(HIDE_NOT_STARTED_KEY) === 'true';
+};
+
 const getInitialTaskProjectSort = (): TaskProjectSortOption => {
   if (typeof window === 'undefined') return 'name-asc';
   const stored = window.localStorage.getItem(TASK_PROJECT_SORT_KEY);
@@ -46,6 +58,10 @@ interface ViewState {
   setKanbanGroupBy: (groupBy: KanbanGroupBy) => void;
   showDoneColumn: boolean;
   setShowDoneColumn: (show: boolean) => void;
+  hideOnHold: boolean;
+  setHideOnHold: (hide: boolean) => void;
+  hideNotStarted: boolean;
+  setHideNotStarted: (hide: boolean) => void;
   showSeeds: boolean;
   setShowSeeds: (show: boolean) => void;
   showArchivedSeeds: boolean;
@@ -81,6 +97,20 @@ export const useViewStore = create<ViewState>((set) => ({
   setKanbanGroupBy: (groupBy) => set({ kanbanGroupBy: groupBy }),
   showDoneColumn: false,
   setShowDoneColumn: (show) => set({ showDoneColumn: show }),
+  hideOnHold: getInitialHideOnHold(),
+  setHideOnHold: (hide) => {
+    set({ hideOnHold: hide });
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(HIDE_ON_HOLD_KEY, String(hide));
+    }
+  },
+  hideNotStarted: getInitialHideNotStarted(),
+  setHideNotStarted: (hide) => {
+    set({ hideNotStarted: hide });
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(HIDE_NOT_STARTED_KEY, String(hide));
+    }
+  },
   showSeeds: true,
   setShowSeeds: (show) => set({ showSeeds: show }),
   showArchivedSeeds: false,

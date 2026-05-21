@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { format } from 'date-fns';
 import { useNavigate } from '@tanstack/react-router';
 import type { ColumnDef } from '@tanstack/react-table';
 import { DataTable, DataTableColumnHeader } from '@/components/ui/data-table';
@@ -117,6 +118,17 @@ export function ProjectTable({ projects, isLoading }: ProjectTableProps) {
       ),
     },
     {
+      accessorKey: 'created_at',
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Added" />
+      ),
+      cell: ({ row }) => (
+        <span className="text-sm text-muted-foreground">
+          {format(new Date(row.original.created_at), 'MMM d, yyyy')}
+        </span>
+      ),
+    },
+    {
       id: 'actions',
       cell: ({ row }) => (
         <div onClick={(e) => e.stopPropagation()}>
@@ -150,7 +162,7 @@ export function ProjectTable({ projects, isLoading }: ProjectTableProps) {
     return (
       <div className="rounded-md border">
         <div className="border-b px-4 py-3 flex gap-6">
-          {['w-32', 'w-20', 'w-16', 'w-20', 'w-24'].map((w, i) => (
+          {['w-32', 'w-20', 'w-16', 'w-20', 'w-24', 'w-20'].map((w, i) => (
             <Skeleton key={i} className={`h-4 ${w} imagination-skeleton`} />
           ))}
         </div>
@@ -161,6 +173,7 @@ export function ProjectTable({ projects, isLoading }: ProjectTableProps) {
             <Skeleton className="h-5 w-16 rounded-full imagination-skeleton" />
             <Skeleton className="h-5 w-14 rounded-full imagination-skeleton" />
             <Skeleton className="h-2 w-24 rounded-full imagination-skeleton" />
+            <Skeleton className="h-4 w-20 imagination-skeleton" />
           </div>
         ))}
       </div>
