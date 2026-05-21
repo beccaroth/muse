@@ -3,8 +3,6 @@ import {
   Plus,
   Table as TableIcon,
   LayoutGrid,
-  Eye,
-  EyeOff,
   Filter,
 } from "lucide-react";
 import { Section } from "@/components/layout/Section";
@@ -118,6 +116,18 @@ export function ProjectsSection({ className }: { className?: string }) {
                       Hide unstarted
                     </Label>
                   </div>
+                  {projectsView === "kanban" && (
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        id="hide-done"
+                        checked={!showDoneColumn}
+                        onCheckedChange={(checked) => setShowDoneColumn(checked !== true)}
+                      />
+                      <Label htmlFor="hide-done" className="text-sm font-normal">
+                        Hide done
+                      </Label>
+                    </div>
+                  )}
 
                   {projectsView === "kanban" && (
                     <div className="space-y-1.5">
@@ -141,26 +151,6 @@ export function ProjectsSection({ className }: { className?: string }) {
                 </div>
               </PopoverContent>
             </Popover>
-
-            {projectsView === "kanban" && (
-              <>
-                {kanbanGroupBy === "status" && (
-                  <Button
-                    variant={showDoneColumn ? "default" : "outline"}
-                    size="sm"
-                    className="h-8 text-xs"
-                    onClick={() => setShowDoneColumn(!showDoneColumn)}
-                  >
-                    {showDoneColumn ? (
-                      <Eye className="h-3 w-3 mr-1" />
-                    ) : (
-                      <EyeOff className="h-3 w-3 mr-1" />
-                    )}
-                    Done
-                  </Button>
-                )}
-              </>
-            )}
           </div>
         </div>
 
