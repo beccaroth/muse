@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
 import type { Project, ProjectInsert, ProjectUpdate } from '@/types';
 
@@ -68,6 +69,9 @@ export function useUpdateProject() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['projects'] });
       queryClient.invalidateQueries({ queryKey: ['project-types'] });
+    },
+    onError: () => {
+      toast.error('Failed to update project');
     },
   });
 }
