@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import type { ColumnDef, SortingState, Column } from "@tanstack/react-table"
+import type { ColumnDef, SortingState, Column, RowData } from "@tanstack/react-table"
 import {
   flexRender,
   getCoreRowModel,
@@ -21,11 +21,21 @@ import {
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
+declare module "@tanstack/react-table" {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  interface ColumnMeta<TData extends RowData, TValue> {
+    /** Classes applied to this column's <th> and <td>, e.g. width constraints. */
+    className?: string
+  }
+}
+
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   emptyMessage?: string
   onRowClick?: (row: TData) => void
+  /** Applied to the <table>; pass `table-fixed` to stop columns sizing to content. */
+  className?: string
 }
 
 export function DataTable<TData, TValue>({
@@ -33,6 +43,7 @@ export function DataTable<TData, TValue>({
   data,
   emptyMessage = "No results.",
   onRowClick,
+  className,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([])
 
@@ -49,12 +60,15 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="rounded-md border overflow-hidden">
-      <Table>
+      <Table className={className}>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <TableHead key={header.id}>
+                <TableHead
+                  key={header.id}
+                  className={header.column.columnDef.meta?.className}
+                >
                   {header.isPlaceholder
                     ? null
                     : flexRender(
@@ -76,7 +90,10 @@ export function DataTable<TData, TValue>({
                 onClick={() => onRowClick?.(row.original)}
               >
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
+                  <TableCell
+                    key={cell.id}
+                    className={cell.column.columnDef.meta?.className}
+                  >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}
