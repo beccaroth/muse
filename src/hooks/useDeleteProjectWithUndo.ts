@@ -28,10 +28,16 @@ export function useDeleteProjectWithUndo() {
       clearTimeout(entry.timeoutId);
       pending.delete(projectId);
 
-      const { error } = await supabase.from('projects').delete().eq('id', projectId);
+      // Select the deleted rows: a DELETE that RLS filters out returns 204 with no
+      // error, so `error` alone would report success for a row that still exists.
+      const { data, error } = await supabase
+        .from('projects')
+        .delete()
+        .eq('id', projectId)
+        .select('id');
 
-      if (error) {
-        // Restore whatever the server still has
+      if (error || !data?.length) {
+        // Resync with whatever the server still has
         queryClient.invalidateQueries({ queryKey: ['projects'] });
         queryClient.invalidateQueries({ queryKey: ['project-types'] });
         toast.error('Failed to delete project');
@@ -42,6 +48,12 @@ export function useDeleteProjectWithUndo() {
 
   const deleteProject = useCallback(
     async (project: Project, onDeleted?: () => void) => {
+      // A refetch inside the undo window re-surfaces a row whose delete hasn't committed
+      // yet, so the same row can be deleted twice. Retire the previous timer instead of
+      // leaking it, otherwise it fires early and commits ahead of the new undo window.
+      const inFlight = pending.get(project.id);
+      if (inFlight) clearTimeout(inFlight.timeoutId);
+
       // Optimistically remove from cache
       queryClient.setQueryData<Project[]>(['projects'], (old) =>
         old?.filter((p) => p.id !== project.id) ?? []

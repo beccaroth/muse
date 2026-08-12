@@ -28,9 +28,15 @@ export function useDeleteTaskWithUndo() {
       clearTimeout(entry.timeoutId);
       pending.delete(taskId);
 
-      const { error } = await supabase.from('tasks').delete().eq('id', taskId);
+      // Select the deleted rows: a DELETE that RLS filters out returns 204 with no
+      // error, so `error` alone would report success for a row that still exists.
+      const { data, error } = await supabase
+        .from('tasks')
+        .delete()
+        .eq('id', taskId)
+        .select('id');
 
-      if (error) {
+      if (error || !data?.length) {
         queryClient.invalidateQueries({ queryKey: ['tasks', entry.task.project_id] });
         queryClient.invalidateQueries({ queryKey: ['tasks'] });
         toast.error('Failed to delete task');
@@ -41,6 +47,12 @@ export function useDeleteTaskWithUndo() {
 
   const deleteTask = useCallback(
     async (task: Task) => {
+      // A refetch inside the undo window re-surfaces a row whose delete hasn't committed
+      // yet, so the same row can be deleted twice. Retire the previous timer instead of
+      // leaking it, otherwise it fires early and commits ahead of the new undo window.
+      const inFlight = pending.get(task.id);
+      if (inFlight) clearTimeout(inFlight.timeoutId);
+
       // Optimistically remove from cache
       queryClient.setQueryData<Task[]>(['tasks', task.project_id], (old) =>
         old?.filter((t) => t.id !== task.id) ?? []

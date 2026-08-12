@@ -47,12 +47,16 @@ export function usePromoteSeedWithUndo() {
 
         if (createError) throw createError;
 
-        const { error: deleteError } = await supabase
+        // Select the deleted rows: a DELETE that RLS filters out returns 204 with no
+        // error, which would leave the new project created and the seed still present.
+        const { data: deletedSeeds, error: deleteError } = await supabase
           .from('seeds')
           .delete()
-          .eq('id', seed.id);
+          .eq('id', seed.id)
+          .select('id');
 
         if (deleteError) throw deleteError;
+        if (!deletedSeeds?.length) throw new Error('Seed was not deleted');
 
         // Replace optimistic project with real one
         queryClient.setQueryData<Project[]>(['projects'], (old) => {
@@ -74,6 +78,18 @@ export function usePromoteSeedWithUndo() {
 
   const promoteSeed = useCallback(
     async (seed: Seed) => {
+      // A refetch inside the undo window re-surfaces a seed whose promotion hasn't
+      // committed yet, so the same seed can be promoted twice. Retire the previous timer
+      // instead of leaking it (it would otherwise fire early and commit ahead of the new
+      // undo window) and drop its optimistic project, which nothing would reconcile.
+      const inFlight = pending.get(seed.id);
+      if (inFlight) {
+        clearTimeout(inFlight.timeoutId);
+        queryClient.setQueryData<Project[]>(['projects'], (old) =>
+          old?.filter((p) => p.id !== inFlight.tempProjectId) ?? []
+        );
+      }
+
       // Generate a temporary ID for optimistic update
       const tempProjectId = crypto.randomUUID();
 
