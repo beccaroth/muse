@@ -17,7 +17,6 @@ import { FilterToggle } from "@/components/ui/filter-toggle";
 import { Separator } from "@/components/ui/separator";
 import { ProjectTable } from "./ProjectTable";
 import { ProjectKanban } from "./ProjectKanban";
-import { ProjectForm } from "./ProjectForm";
 import { useViewStore } from "@/stores/viewStore";
 import { useProjects } from "@/hooks/useProjects";
 import { filterProjects } from "@/lib/projectFilters";
@@ -37,9 +36,6 @@ export function ProjectsSection({ className }: { className?: string }) {
     hideNotStarted,
     setHideNotStarted,
     setProjectFormOpen,
-    isProjectFormOpen,
-    editingProject,
-    setEditingProject,
   } = useViewStore();
   const { data: projects, isLoading } = useProjects();
   const visibleProjects = filterProjects(projects ?? [], { hideOnHold, hideNotStarted });
@@ -169,15 +165,7 @@ export function ProjectsSection({ className }: { className?: string }) {
           <ProjectTable projects={visibleProjects} isLoading={isLoading} />
         </TabsContent>
       </Tabs>
-
-      <ProjectForm
-        open={isProjectFormOpen}
-        onOpenChange={(open) => {
-          setProjectFormOpen(open);
-          if (!open) setEditingProject(null);
-        }}
-        projectId={editingProject}
-      />
+      {/* ProjectForm is mounted once in AuthenticatedLayout via GlobalForms */}
     </Section>
   );
 }

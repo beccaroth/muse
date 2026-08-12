@@ -1,4 +1,4 @@
-import { useRef, useCallback } from 'react';
+import { useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import type { Seed, Project } from '@/types';
@@ -6,20 +6,88 @@ import { toast } from 'sonner';
 
 const UNDO_TIMEOUT = 5000; // 5 seconds
 
+// Keyed by seed id. A single pending slot meant promoting a second seed within the undo
+// window cancelled the first promotion outright: the seed was already gone from the cache
+// and no project was ever created, so the idea vanished on refresh. Module-level so a
+// pending promotion survives unmount and its Undo keeps working.
+const pending = new Map<
+  string,
+  { seed: Seed; tempProjectId: string; timeoutId: ReturnType<typeof setTimeout> }
+>();
+
 export function usePromoteSeedWithUndo() {
   const queryClient = useQueryClient();
-  const pendingPromoteRef = useRef<{
-    seed: Seed;
-    tempProjectId: string;
-    timeoutId: ReturnType<typeof setTimeout>;
-  } | null>(null);
+
+  const commitPromotion = useCallback(
+    async (seedId: string) => {
+      const entry = pending.get(seedId);
+      if (!entry) return;
+
+      clearTimeout(entry.timeoutId);
+      pending.delete(seedId);
+
+      const { seed, tempProjectId } = entry;
+
+      try {
+        const { data: newProject, error: createError } = await supabase
+          .from('projects')
+          .insert({
+            project_name: seed.title,
+            icon: seed.icon,
+            description: seed.description,
+            project_types: seed.project_type ? [seed.project_type] : [],
+            status: 'Not started',
+            priority: 'Someday',
+            progress: 0,
+            start_date: null,
+            end_date: null,
+          })
+          .select()
+          .single();
+
+        if (createError) throw createError;
+
+        // Select the deleted rows: a DELETE that RLS filters out returns 204 with no
+        // error, which would leave the new project created and the seed still present.
+        const { data: deletedSeeds, error: deleteError } = await supabase
+          .from('seeds')
+          .delete()
+          .eq('id', seed.id)
+          .select('id');
+
+        if (deleteError) throw deleteError;
+        if (!deletedSeeds?.length) throw new Error('Seed was not deleted');
+
+        // Replace optimistic project with real one
+        queryClient.setQueryData<Project[]>(['projects'], (old) => {
+          if (!old) return [newProject as Project];
+          return old.map((p) =>
+            p.id === tempProjectId ? (newProject as Project) : p
+          );
+        });
+        queryClient.invalidateQueries({ queryKey: ['project-types'] });
+      } catch {
+        // If promotion fails, restore the seed and remove temp project
+        queryClient.invalidateQueries({ queryKey: ['seeds'] });
+        queryClient.invalidateQueries({ queryKey: ['projects'] });
+        toast.error('Failed to promote seed');
+      }
+    },
+    [queryClient],
+  );
 
   const promoteSeed = useCallback(
     async (seed: Seed) => {
-      // Cancel any pending promotion
-      if (pendingPromoteRef.current) {
-        clearTimeout(pendingPromoteRef.current.timeoutId);
-        pendingPromoteRef.current = null;
+      // A refetch inside the undo window re-surfaces a seed whose promotion hasn't
+      // committed yet, so the same seed can be promoted twice. Retire the previous timer
+      // instead of leaking it (it would otherwise fire early and commit ahead of the new
+      // undo window) and drop its optimistic project, which nothing would reconcile.
+      const inFlight = pending.get(seed.id);
+      if (inFlight) {
+        clearTimeout(inFlight.timeoutId);
+        queryClient.setQueryData<Project[]>(['projects'], (old) =>
+          old?.filter((p) => p.id !== inFlight.tempProjectId) ?? []
+        );
       }
 
       // Generate a temporary ID for optimistic update
@@ -54,85 +122,43 @@ export function usePromoteSeedWithUndo() {
         return [optimisticProject, ...old];
       });
 
-      // Set up the pending promotion
-      const timeoutId = setTimeout(async () => {
-        try {
-          // Actually create the project in database
-          const { data: newProject, error: createError } = await supabase
-            .from('projects')
-            .insert({
-              project_name: seed.title,
-              icon: seed.icon,
-              description: seed.description,
-              project_types: seed.project_type ? [seed.project_type] : [],
-              status: 'Not started',
-              priority: 'Someday',
-              progress: 0,
-              start_date: null,
-              end_date: null,
-            })
-            .select()
-            .single();
-
-          if (createError) throw createError;
-
-          // Delete the seed from database
-          const { error: deleteError } = await supabase
-            .from('seeds')
-            .delete()
-            .eq('id', seed.id);
-
-          if (deleteError) throw deleteError;
-
-          // Replace optimistic project with real one
-          queryClient.setQueryData<Project[]>(['projects'], (old) => {
-            if (!old) return [newProject as Project];
-            return old.map((p) =>
-              p.id === tempProjectId ? (newProject as Project) : p
-            );
-          });
-        } catch {
-          // If promotion fails, restore the seed and remove temp project
-          queryClient.invalidateQueries({ queryKey: ['seeds'] });
-          queryClient.invalidateQueries({ queryKey: ['projects'] });
-          toast.error('Failed to promote seed');
-        }
-
-        pendingPromoteRef.current = null;
+      const timeoutId = setTimeout(() => {
+        void commitPromotion(seed.id);
       }, UNDO_TIMEOUT);
 
-      pendingPromoteRef.current = { seed, tempProjectId, timeoutId };
+      pending.set(seed.id, { seed, tempProjectId, timeoutId });
 
-      // Show toast with undo option
       toast.success(`"${seed.title}" promoted to project!`, {
         duration: UNDO_TIMEOUT,
         action: {
           label: 'Undo',
           onClick: () => {
-            if (pendingPromoteRef.current) {
-              clearTimeout(pendingPromoteRef.current.timeoutId);
-              const { seed: restoredSeed, tempProjectId } =
-                pendingPromoteRef.current;
-              pendingPromoteRef.current = null;
+            const entry = pending.get(seed.id);
+            if (!entry) return;
 
-              // Remove temp project from cache
-              queryClient.setQueryData<Project[]>(['projects'], (old) =>
-                old?.filter((p) => p.id !== tempProjectId) ?? []
-              );
+            clearTimeout(entry.timeoutId);
+            pending.delete(seed.id);
 
-              // Restore seed to cache
-              queryClient.setQueryData<Seed[]>(['seeds'], (old) => {
-                if (!old) return [restoredSeed];
-                return [restoredSeed, ...old];
-              });
+            const { seed: restoredSeed, tempProjectId: tempId } = entry;
 
-              toast.success(`"${restoredSeed.title}" restored to seeds`);
-            }
+            // Remove temp project from cache
+            queryClient.setQueryData<Project[]>(['projects'], (old) =>
+              old?.filter((p) => p.id !== tempId) ?? []
+            );
+
+            // Restore seed to cache
+            queryClient.setQueryData<Seed[]>(['seeds'], (old) => {
+              if (!old) return [restoredSeed];
+              if (old.some((s) => s.id === restoredSeed.id)) return old;
+              return [restoredSeed, ...old];
+            });
+
+            toast.success(`"${restoredSeed.title}" restored to seeds`);
           },
         },
       });
     },
-    [queryClient]
+    [queryClient, commitPromotion]
   );
 
   return { promoteSeed };

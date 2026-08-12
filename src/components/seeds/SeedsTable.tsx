@@ -17,7 +17,7 @@ import { useDeleteSeed, useUpdateSeed } from '@/hooks/useSeeds';
 import { usePromoteSeedWithUndo } from '@/hooks/usePromoteSeedWithUndo';
 import { Loading } from '@/components/ui/loading';
 import type { Seed } from '@/types';
-import { cn } from '@/lib/utils';
+import { cn, parseDateOnly } from '@/lib/utils';
 
 interface SeedsTableProps {
   seeds: Seed[];
@@ -119,7 +119,7 @@ const columns: ColumnDef<Seed>[] = [
       const dateAdded = row.getValue('date_added') as string;
       return (
         <span className="text-sm text-muted-foreground">
-          {format(new Date(dateAdded), 'MMM d, yyyy')}
+          {format(parseDateOnly(dateAdded), 'MMM d, yyyy')}
         </span>
       );
     },

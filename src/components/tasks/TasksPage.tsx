@@ -24,7 +24,7 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { cn } from '@/lib/utils';
+import { cn, nextSortOrder } from '@/lib/utils';
 import { useViewStore } from '@/stores/viewStore';
 import type { Task, Project } from '@/types';
 import { toast } from 'sonner';
@@ -151,13 +151,13 @@ export function TasksPage() {
     }
     setFormError(null);
 
-    const projectTaskCount = tasks.filter((task) => task.project_id === selectedProjectId).length;
+    const projectTasks = tasks.filter((task) => task.project_id === selectedProjectId);
     createTask.mutate(
       {
         project_id: selectedProjectId,
         title,
         completed: false,
-        sort_order: projectTaskCount,
+        sort_order: nextSortOrder(projectTasks),
       },
       {
         onSuccess: () => {

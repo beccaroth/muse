@@ -8,16 +8,12 @@ import {
 } from "@/components/ui/popover";
 import { FilterToggle } from "@/components/ui/filter-toggle";
 import { SeedsTable } from "./SeedsTable";
-import { SeedForm } from "./SeedForm";
 import { useViewStore } from "@/stores/viewStore";
 import { useSeeds } from "@/hooks/useSeeds";
 
 export function SeedsSection({ className }: { className?: string }) {
   const {
     setSeedFormOpen,
-    isSeedFormOpen,
-    editingSeed,
-    setEditingSeed,
     showArchivedSeeds,
     setShowArchivedSeeds,
   } =
@@ -80,15 +76,7 @@ export function SeedsSection({ className }: { className?: string }) {
       className={className}
     >
       <SeedsTable seeds={visibleSeeds} isLoading={isLoading} />
-
-      <SeedForm
-        open={isSeedFormOpen}
-        onOpenChange={(open) => {
-          setSeedFormOpen(open);
-          if (!open) setEditingSeed(null);
-        }}
-        seedId={editingSeed}
-      />
+      {/* SeedForm is mounted once in AuthenticatedLayout via GlobalForms */}
     </Section>
   );
 }

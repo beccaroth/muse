@@ -15,7 +15,7 @@ export function ProjectNotes({ project }: ProjectNotesProps) {
       id: project.id,
       notes: html || null,
     });
-  });
+  }, project.notes ?? '');
 
   return (
     <div className="bg-card rounded-lg border p-6 mb-6">

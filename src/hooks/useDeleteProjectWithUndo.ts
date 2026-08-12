@@ -1,4 +1,4 @@
-import { useRef, useCallback } from 'react';
+import { useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import type { Project } from '@/types';
@@ -6,20 +6,53 @@ import { toast } from 'sonner';
 
 const UNDO_TIMEOUT = 5000; // 5 seconds
 
+// Keyed by project id, and module-level rather than a ref: deletes are independent, so
+// starting a second one must not discard the first (a single shared slot was cleared on
+// each new delete, cancelling the pending write — the project stayed gone from the cache
+// but came back on the next refetch). Module scope also keeps a pending delete alive
+// across unmount, so deleting from the project page and navigating away still commits,
+// and the Undo button on the still-visible toast keeps working.
+const pending = new Map<
+  string,
+  { project: Project; timeoutId: ReturnType<typeof setTimeout> }
+>();
+
 export function useDeleteProjectWithUndo() {
   const queryClient = useQueryClient();
-  const pendingDeleteRef = useRef<{
-    project: Project;
-    timeoutId: ReturnType<typeof setTimeout>;
-  } | null>(null);
+
+  const commitDelete = useCallback(
+    async (projectId: string) => {
+      const entry = pending.get(projectId);
+      if (!entry) return;
+
+      clearTimeout(entry.timeoutId);
+      pending.delete(projectId);
+
+      // Select the deleted rows: a DELETE that RLS filters out returns 204 with no
+      // error, so `error` alone would report success for a row that still exists.
+      const { data, error } = await supabase
+        .from('projects')
+        .delete()
+        .eq('id', projectId)
+        .select('id');
+
+      if (error || !data?.length) {
+        // Resync with whatever the server still has
+        queryClient.invalidateQueries({ queryKey: ['projects'] });
+        queryClient.invalidateQueries({ queryKey: ['project-types'] });
+        toast.error('Failed to delete project');
+      }
+    },
+    [queryClient],
+  );
 
   const deleteProject = useCallback(
     async (project: Project, onDeleted?: () => void) => {
-      // Cancel any pending delete
-      if (pendingDeleteRef.current) {
-        clearTimeout(pendingDeleteRef.current.timeoutId);
-        pendingDeleteRef.current = null;
-      }
+      // A refetch inside the undo window re-surfaces a row whose delete hasn't committed
+      // yet, so the same row can be deleted twice. Retire the previous timer instead of
+      // leaking it, otherwise it fires early and commits ahead of the new undo window.
+      const inFlight = pending.get(project.id);
+      if (inFlight) clearTimeout(inFlight.timeoutId);
 
       // Optimistically remove from cache
       queryClient.setQueryData<Project[]>(['projects'], (old) =>
@@ -29,50 +62,36 @@ export function useDeleteProjectWithUndo() {
       // Call onDeleted callback (e.g., to navigate away or close dialog)
       onDeleted?.();
 
-      // Set up the pending delete
-      const timeoutId = setTimeout(async () => {
-        // Actually delete from database
-        const { error } = await supabase
-          .from('projects')
-          .delete()
-          .eq('id', project.id);
-
-        if (error) {
-          // If delete fails, restore the project in cache
-          queryClient.invalidateQueries({ queryKey: ['projects'] });
-          toast.error('Failed to delete project');
-        }
-
-        pendingDeleteRef.current = null;
+      const timeoutId = setTimeout(() => {
+        void commitDelete(project.id);
       }, UNDO_TIMEOUT);
 
-      pendingDeleteRef.current = { project, timeoutId };
+      pending.set(project.id, { project, timeoutId });
 
-      // Show toast with undo option
       toast.success(`"${project.project_name}" deleted`, {
         duration: UNDO_TIMEOUT,
         action: {
           label: 'Undo',
           onClick: () => {
-            if (pendingDeleteRef.current) {
-              clearTimeout(pendingDeleteRef.current.timeoutId);
-              const restoredProject = pendingDeleteRef.current.project;
-              pendingDeleteRef.current = null;
+            const entry = pending.get(project.id);
+            if (!entry) return;
 
-              // Restore to cache
-              queryClient.setQueryData<Project[]>(['projects'], (old) => {
-                if (!old) return [restoredProject];
-                // Add back in original position (at beginning since sorted by created_at desc)
-                return [restoredProject, ...old];
-              });
+            clearTimeout(entry.timeoutId);
+            pending.delete(project.id);
 
-              toast.success(`"${restoredProject.project_name}" restored`);
-            }
+            // Restore to cache (at the front, since the list is created_at desc)
+            queryClient.setQueryData<Project[]>(['projects'], (old) => {
+              if (!old) return [entry.project];
+              if (old.some((p) => p.id === entry.project.id)) return old;
+              return [entry.project, ...old];
+            });
+
+            toast.success(`"${entry.project.project_name}" restored`);
           },
         },
       });
     },
-    [queryClient]
+    [queryClient, commitDelete]
   );
 
   return { deleteProject };

@@ -34,6 +34,8 @@ export interface Task {
   title: string;
   completed: boolean;
   sort_order: number;
+  /** DATE column ('YYYY-MM-DD'); render with parseDateOnly, not `new Date()`. */
+  due_date: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -44,5 +46,8 @@ export type ProjectUpdate = Partial<ProjectInsert> & { id: string };
 export type SeedInsert = Omit<Seed, 'id' | 'created_at' | 'updated_at'>;
 export type SeedUpdate = Partial<SeedInsert> & { id: string };
 
-export type TaskInsert = Omit<Task, 'id' | 'created_at' | 'updated_at'>;
+// due_date is a nullable column with no default, so callers may omit it on insert.
+export type TaskInsert = Omit<Task, 'id' | 'created_at' | 'updated_at' | 'due_date'> & {
+  due_date?: string | null;
+};
 export type TaskUpdate = Partial<Omit<Task, 'id' | 'project_id' | 'created_at' | 'updated_at'>> & { id: string };

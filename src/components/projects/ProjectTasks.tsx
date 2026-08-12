@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Check, Eye, EyeOff, Pencil, Plus, X } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn, nextSortOrder } from '@/lib/utils';
 import { useViewStore } from '@/stores/viewStore';
 
 interface ProjectTasksProps {
@@ -27,7 +27,7 @@ export function ProjectTasks({ projectId }: ProjectTasksProps) {
     const title = newTaskTitle.trim();
     if (!title) return;
     createTask.mutate(
-      { project_id: projectId, title, completed: false, sort_order: tasks.length },
+      { project_id: projectId, title, completed: false, sort_order: nextSortOrder(tasks) },
       { onSuccess: () => setNewTaskTitle('') }
     );
   };

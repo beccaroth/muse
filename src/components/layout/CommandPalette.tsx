@@ -70,7 +70,10 @@ export function CommandPalette() {
             {projects?.map((project) => (
               <CommandItem
                 key={project.id}
-                value={project.project_name}
+                // cmdk treats `value` as the item's identity, so two projects sharing a
+                // name would highlight and select as one. Append the id to disambiguate;
+                // it stays part of the searchable text, which is harmless for UUIDs.
+                value={`${project.project_name} ${project.id}`}
                 onSelect={() => handleSelect(project.id)}
               >
                 <span className="text-base leading-none">

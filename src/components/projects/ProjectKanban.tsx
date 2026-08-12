@@ -101,29 +101,45 @@ export function ProjectKanban({ projects, isLoading }: ProjectKanbanProps) {
       ? projectsByPriority[project.priority]
       : projectsByStatus[project.status];
 
-    // Check if dropped on a card in the same column (reorder)
-    const sourceIds = sourceProjects.map((p) => p.id);
-    const oldIndex = sourceIds.indexOf(projectId);
-    const newIndex = sourceIds.indexOf(overId);
+    // `over.id` is either a column id or another card's project id — resolve it to a
+    // column either way, otherwise a drop onto a card writes that card's UUID into the
+    // status/priority enum column.
+    const columnIds: readonly string[] =
+      kanbanGroupBy === 'priority' ? PROJECT_PRIORITIES : statusesToShow;
+    const overProject = projects.find((p) => p.id === overId);
+    const targetCol = columnIds.includes(overId)
+      ? overId
+      : overProject
+        ? kanbanGroupBy === 'priority'
+          ? overProject.priority
+          : overProject.status
+        : null;
 
-    if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
-      // Same-column reorder
-      const newIds = arrayMove(sourceIds, oldIndex, newIndex);
-      setKanbanCardOrder({ ...kanbanCardOrder, [sourceCol]: newIds });
+    if (!targetCol) return;
+
+    if (targetCol === sourceCol) {
+      // Same-column reorder — only meaningful when dropped onto another card
+      const sourceIds = sourceProjects.map((p) => p.id);
+      const oldIndex = sourceIds.indexOf(projectId);
+      const newIndex = sourceIds.indexOf(overId);
+
+      if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
+        const newIds = arrayMove(sourceIds, oldIndex, newIndex);
+        // `sourceIds` only covers currently visible cards, so writing it back verbatim
+        // would drop the saved position of anything hidden by a filter. Keep those ids.
+        const hiddenIds = (kanbanCardOrder[sourceCol] ?? []).filter(
+          (id) => !sourceIds.includes(id)
+        );
+        setKanbanCardOrder({ ...kanbanCardOrder, [sourceCol]: [...newIds, ...hiddenIds] });
+      }
       return;
     }
 
-    // Cross-column move (dropped on a column or a card in another column)
+    // Cross-column move
     if (kanbanGroupBy === 'priority') {
-      const newPriority = over.id as ProjectPriority;
-      if (project.priority !== newPriority) {
-        updateProject.mutate({ id: projectId, priority: newPriority });
-      }
+      updateProject.mutate({ id: projectId, priority: targetCol as ProjectPriority });
     } else {
-      const newStatus = over.id as ProjectStatus;
-      if (project.status !== newStatus) {
-        updateProject.mutate({ id: projectId, status: newStatus });
-      }
+      updateProject.mutate({ id: projectId, status: targetCol as ProjectStatus });
     }
   };
 

@@ -14,7 +14,7 @@ import { format } from 'date-fns';
 import { ProjectNotes } from './ProjectNotes';
 import { ProjectTasks } from './ProjectTasks';
 import { Loading } from '@/components/ui/loading';
-import { cn } from '@/lib/utils';
+import { cn, parseDateOnly } from '@/lib/utils';
 
 export function ProjectPage() {
   const { projectId } = useParams({ strict: false });
@@ -122,7 +122,9 @@ export function ProjectPage() {
       <ProjectTasks projectId={project.id} />
 
       {/* Notes */}
-      <ProjectNotes project={project} />
+      {/* Keyed so switching projects remounts the editor and its save baseline
+          rather than carrying the previous project's content across. */}
+      <ProjectNotes key={project.id} project={project} />
 
       {/* Dates */}
       {(project.start_date || project.end_date) && (
@@ -131,10 +133,10 @@ export function ProjectPage() {
           <div className="flex items-center gap-6 text-sm text-muted-foreground">
             <Calendar className="h-4 w-4" />
             {project.start_date && (
-              <span>Started: {format(new Date(project.start_date), 'MMM d, yyyy')}</span>
+              <span>Started: {format(parseDateOnly(project.start_date), 'MMM d, yyyy')}</span>
             )}
             {project.end_date && (
-              <span>Due: {format(new Date(project.end_date), 'MMM d, yyyy')}</span>
+              <span>Due: {format(parseDateOnly(project.end_date), 'MMM d, yyyy')}</span>
             )}
           </div>
         </div>
