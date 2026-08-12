@@ -43,7 +43,9 @@ import { FloatingToolbar } from '@/components/tiptap/ui/floating-toolbar';
 import { useIsBreakpoint } from '@/hooks/use-is-breakpoint';
 
 // --- Lib ---
-import { handleImageUpload, MAX_FILE_SIZE } from '@/lib/tiptap-utils';
+import { toast } from 'sonner';
+
+import { ACCEPTED_IMAGE_TYPES, handleImageUpload, MAX_FILE_SIZE } from '@/lib/tiptap-utils';
 
 // --- Styles ---
 import '@/components/tiptap/templates/simple/simple-editor.scss';
@@ -113,11 +115,16 @@ export function NotesEditor({
       Selection,
       Placeholder.configure({ placeholder }),
       ImageUploadNode.configure({
-        accept: 'image/*',
+        // Matches the bucket's allowed_mime_types; 'image/*' would let the picker offer
+        // formats the upload then rejects.
+        accept: ACCEPTED_IMAGE_TYPES.join(','),
         maxSize: MAX_FILE_SIZE,
         limit: 3,
         upload: handleImageUpload,
-        onError: (error: Error) => console.error('Upload failed:', error),
+        onError: (error: Error) => {
+          console.error('Upload failed:', error);
+          toast.error(error.message || 'Image upload failed');
+        },
       }),
     ],
     [placeholder],
