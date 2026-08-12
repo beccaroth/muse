@@ -122,7 +122,9 @@ export function ProjectPage() {
       <ProjectTasks projectId={project.id} />
 
       {/* Notes */}
-      <ProjectNotes project={project} />
+      {/* Keyed so switching projects remounts the editor and its save baseline
+          rather than carrying the previous project's content across. */}
+      <ProjectNotes key={project.id} project={project} />
 
       {/* Dates */}
       {(project.start_date || project.end_date) && (
