@@ -75,19 +75,28 @@ function ActionsCell({ seed }: { seed: Seed }) {
 const columns: ColumnDef<Seed>[] = [
   {
     accessorKey: 'title',
+    // Percentage widths rather than fixed: the seeds panel is a third of the dashboard
+    // on desktop but full-bleed on mobile, and percentages leave the title ~50% more
+    // room at narrow widths while still never clipping the type badge or the date.
+    meta: { className: 'w-[46%] min-w-0' },
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Title" />
     ),
     cell: ({ row }) => {
       const seed = row.original;
       return (
-        <div>
+        <div className="min-w-0">
           <div className={cn('font-medium flex items-center gap-2', seed.status === 'archived' && 'text-muted-foreground line-through')}>
-            {seed.icon && <span>{seed.icon}</span>}
-            {seed.title}
+            {seed.icon && <span className="shrink-0">{seed.icon}</span>}
+            <span className="truncate">{seed.title}</span>
           </div>
           {seed.description && (
-            <div className={cn('text-sm text-muted-foreground line-clamp-1', seed.status === 'archived' && 'opacity-70')}>
+            // `truncate` rather than `line-clamp-1`: the cell is nowrap, so the clamp
+            // never wrapped anything and the element kept its full intrinsic width.
+            <div
+              className={cn('text-sm text-muted-foreground truncate', seed.status === 'archived' && 'opacity-70')}
+              title={seed.description}
+            >
               {seed.description}
             </div>
           )}
@@ -97,6 +106,7 @@ const columns: ColumnDef<Seed>[] = [
   },
   {
     accessorKey: 'project_type',
+    meta: { className: 'w-[20%]' },
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Type" />
     ),
@@ -104,7 +114,11 @@ const columns: ColumnDef<Seed>[] = [
       const projectType = row.getValue('project_type') as string | null;
       if (!projectType) return null;
       return (
-        <Badge variant="outline" className={cn('text-xs', getTypeColor(projectType))}>
+        <Badge
+          variant="outline"
+          className={cn('text-xs max-w-full truncate', getTypeColor(projectType))}
+          title={projectType}
+        >
           {projectType}
         </Badge>
       );
@@ -112,6 +126,7 @@ const columns: ColumnDef<Seed>[] = [
   },
   {
     accessorKey: 'date_added',
+    meta: { className: 'w-[24%]' },
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Added" />
     ),
@@ -126,6 +141,7 @@ const columns: ColumnDef<Seed>[] = [
   },
   {
     id: 'actions',
+    meta: { className: 'w-[10%]' },
     cell: ({ row }) => <ActionsCell seed={row.original} />,
     enableSorting: false,
   },
@@ -138,6 +154,10 @@ export function SeedsTable({ seeds, isLoading }: SeedsTableProps) {
 
   return (
     <DataTable
+      // `table-fixed` stops the auto layout from widening the Title column to fit its
+      // longest description (a single unbroken URL was pushing the table into a
+      // horizontal scroll). Widths come from the column meta instead.
+      className="table-fixed"
       columns={columns}
       data={seeds}
       emptyMessage="No seeds yet. Capture your first idea!"
