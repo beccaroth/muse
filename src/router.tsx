@@ -1,6 +1,7 @@
 import { createRouter, createRoute, createRootRouteWithContext, redirect, lazyRouteComponent } from '@tanstack/react-router';
 import { AppShell, AuthenticatedLayout } from '@/components/layout/RootLayout';
 import { Loading } from '@/components/ui/loading';
+import { RouteMessage } from '@/components/layout/RouteMessage';
 import type { AuthContext } from '@/stores/authStore';
 
 interface RouterContext {
@@ -87,9 +88,27 @@ export const router = createRouter({
   context: {
     auth: undefined!,  // Will be set by RouterProvider in main.tsx
   },
+  // Start fetching a route's lazy chunk on hover/focus rather than on click, so
+  // navigation doesn't begin with an empty wait for the bundle.
+  defaultPreload: 'intent',
+  // Preloading only warms the route; TanStack Query still owns data freshness.
+  defaultPreloadStaleTime: 0,
   defaultPendingComponent: () => <Loading className="py-20" />,
   defaultPendingMs: 500,
   defaultPendingMinMs: 300,
+  defaultErrorComponent: ({ error, reset }) => (
+    <RouteMessage
+      title="Something went wrong"
+      detail={error instanceof Error ? error.message : undefined}
+      onRetry={reset}
+    />
+  ),
+  defaultNotFoundComponent: () => (
+    <RouteMessage
+      title="Page not found"
+      detail="That URL doesn't match anything in the app."
+    />
+  ),
 });
 
 // Type declaration for router
