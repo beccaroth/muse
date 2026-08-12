@@ -5,7 +5,7 @@ Personal creative projects dashboard for organizing ideas and tracking progress.
 ## Tech Stack
 
 - **Framework:** React 19 + TypeScript 5.9 + Vite 7
-- **Routing:** TanStack Router v1 (type-safe, file-based route tree in `src/router.tsx`)
+- **Routing:** TanStack Router v1 (type-safe; route tree defined in code in `src/router.tsx`, not file-based)
 - **Server state:** TanStack Query v5 (query keys: `['projects']`, `['projects', id]`, `['seeds']`)
 - **UI state:** Zustand (view preferences, modals in `src/stores/viewStore.ts`), React Context (auth)
 - **UI:** shadcn/ui (New York style) + Radix UI + Tailwind CSS v4 + Lucide icons
@@ -45,13 +45,27 @@ src/
 
 ## Routing
 
-TanStack Router with auth guards via `beforeLoad()`. Route structure:
+TanStack Router with auth guards via `beforeLoad()`. Routes are declared with
+`createRoute()` in `src/router.tsx` — there is no file-based routing or codegen step.
 
 - `/login` — public, redirects to `/` if already authenticated
 - `/` — Dashboard (projects + seeds sections)
 - `/project/$projectId` — Project detail page with notes editor
+- `/tasks` — Tasks across all projects
 
-Auth context is passed to the router via `RouterProvider`. Unauthenticated access redirects to `/login?redirect=<original-url>`.
+Auth context is passed to the router via `RouterProvider`. Unauthenticated access
+redirects to `/login?redirect=<original-url>`; the redirect target is validated as a
+same-origin path before being followed. Call `router.invalidate()` after login or logout
+so `beforeLoad` guards re-run against the new auth state.
+
+Route components are lazy (`lazyRouteComponent`) and preloaded on intent, so hovering a
+link fetches the chunk before the click. Read params with
+`getRouteApi('<routeId>').useParams()` rather than `useParams({ strict: false })`, which
+returns loosely-typed values.
+
+This is a client-rendered SPA: `vercel.json` rewrites unmatched paths to `/index.html` so
+deep links and refreshes resolve. Removing that rewrite makes every route except `/`
+return a 404 on direct navigation.
 
 ## Database
 

@@ -1,4 +1,4 @@
-import { Link, useParams, useNavigate } from '@tanstack/react-router';
+import { Link, getRouteApi, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
 import { useProject } from '@/hooks/useProjects';
 import { useDeleteProjectWithUndo } from '@/hooks/useDeleteProjectWithUndo';
@@ -16,9 +16,13 @@ import { ProjectTasks } from './ProjectTasks';
 import { Loading } from '@/components/ui/loading';
 import { cn, parseDateOnly } from '@/lib/utils';
 
+// Typed against the registered route tree: projectId is a string, not
+// `string | undefined` as it was under useParams({ strict: false }).
+const route = getRouteApi('/authenticated/project/$projectId');
+
 export function ProjectPage() {
-  const { projectId } = useParams({ strict: false });
-  const { data: project, isLoading } = useProject(projectId ?? null);
+  const { projectId } = route.useParams();
+  const { data: project, isLoading } = useProject(projectId);
   const { deleteProject } = useDeleteProjectWithUndo();
   const navigate = useNavigate();
   const [isEditFormOpen, setIsEditFormOpen] = useState(false);
@@ -146,7 +150,7 @@ export function ProjectPage() {
       <ProjectForm
         open={isEditFormOpen}
         onOpenChange={setIsEditFormOpen}
-        projectId={projectId ?? null}
+        projectId={projectId}
       />
 
       {/* Delete Confirmation Dialog */}
