@@ -120,11 +120,13 @@ export const useViewStore = create<ViewState>((set) => ({
   viewingProject: null,
   setViewingProject: (id) => set({ viewingProject: id }),
   isProjectFormOpen: false,
-  setProjectFormOpen: (open) => set({ isProjectFormOpen: open, editingProject: open ? null : null }),
+  // Opening the form via "New Project" clears any edit target so it starts blank;
+  // closing clears it too. (Both branches were previously spelled `open ? null : null`.)
+  setProjectFormOpen: (open) => set({ isProjectFormOpen: open, editingProject: null }),
   editingProject: null,
   setEditingProject: (id) => set({ editingProject: id, isProjectFormOpen: !!id }),
   isSeedFormOpen: false,
-  setSeedFormOpen: (open) => set({ isSeedFormOpen: open, editingSeed: open ? null : null }),
+  setSeedFormOpen: (open) => set({ isSeedFormOpen: open, editingSeed: null }),
   editingSeed: null,
   setEditingSeed: (id) => set({ editingSeed: id, isSeedFormOpen: !!id }),
   mobileDashboardTab: 'projects',

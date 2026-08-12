@@ -125,7 +125,12 @@ export function ProjectKanban({ projects, isLoading }: ProjectKanbanProps) {
 
       if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
         const newIds = arrayMove(sourceIds, oldIndex, newIndex);
-        setKanbanCardOrder({ ...kanbanCardOrder, [sourceCol]: newIds });
+        // `sourceIds` only covers currently visible cards, so writing it back verbatim
+        // would drop the saved position of anything hidden by a filter. Keep those ids.
+        const hiddenIds = (kanbanCardOrder[sourceCol] ?? []).filter(
+          (id) => !sourceIds.includes(id)
+        );
+        setKanbanCardOrder({ ...kanbanCardOrder, [sourceCol]: [...newIds, ...hiddenIds] });
       }
       return;
     }

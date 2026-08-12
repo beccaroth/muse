@@ -20,6 +20,17 @@ const loginSchema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
+/**
+ * The `redirect` search param is attacker-controllable via the URL, so only same-origin
+ * paths are followed. '//evil.com' and 'https://evil.com' are both browser-navigable
+ * targets, which would turn the login page into an open redirect.
+ */
+function safeRedirect(target: string | undefined): string | null {
+  if (!target) return null;
+  if (!target.startsWith("/") || target.startsWith("//")) return null;
+  return target;
+}
+
 type LoginForm = z.infer<typeof loginSchema>;
 
 export function LoginPage() {
@@ -41,8 +52,9 @@ export function LoginPage() {
     try {
       await auth.login(data.email, data.password);
       await router.invalidate();
-      if (search.redirect) {
-        router.history.push(search.redirect);
+      const redirect = safeRedirect(search.redirect);
+      if (redirect) {
+        router.history.push(redirect);
       } else {
         await router.navigate({ to: "/" });
       }
