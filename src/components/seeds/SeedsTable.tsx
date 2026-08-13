@@ -32,43 +32,47 @@ function ActionsCell({ seed }: { seed: Seed }) {
   const isArchived = seed.status === 'archived';
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-8 w-8">
-          <MoreHorizontal className="h-4 w-4" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => promoteSeed(seed)}>
-          <ArrowRight className="h-4 w-4 mr-2" />
-          Promote to Project
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={() =>
-            updateSeed.mutate({ id: seed.id, status: isArchived ? 'active' : 'archived' })
-          }
-        >
-          {isArchived ? (
-            <Inbox className="h-4 w-4 mr-2" />
-          ) : (
-            <Archive className="h-4 w-4 mr-2" />
-          )}
-          {isArchived ? 'Unarchive' : 'Archive'}
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => setEditingSeed(seed.id)}>
-          <Pencil className="h-4 w-4 mr-2" />
-          Edit
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          className="text-destructive"
-          onClick={() => deleteSeed.mutate(seed.id)}
-        >
-          <Trash2 className="h-4 w-4 mr-2" />
-          Delete
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    // Rows open the seed, so the menu has to stop its clicks from bubbling —
+    // otherwise every menu interaction would also fire the row handler.
+    <div onClick={(e) => e.stopPropagation()}>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="icon" className="h-8 w-8">
+            <MoreHorizontal className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem onClick={() => promoteSeed(seed)}>
+            <ArrowRight className="h-4 w-4 mr-2" />
+            Promote to Project
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() =>
+              updateSeed.mutate({ id: seed.id, status: isArchived ? 'active' : 'archived' })
+            }
+          >
+            {isArchived ? (
+              <Inbox className="h-4 w-4 mr-2" />
+            ) : (
+              <Archive className="h-4 w-4 mr-2" />
+            )}
+            {isArchived ? 'Unarchive' : 'Archive'}
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={() => setEditingSeed(seed.id)}>
+            <Pencil className="h-4 w-4 mr-2" />
+            Edit
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            className="text-destructive"
+            onClick={() => deleteSeed.mutate(seed.id)}
+          >
+            <Trash2 className="h-4 w-4 mr-2" />
+            Delete
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
   );
 }
 
@@ -148,6 +152,8 @@ const columns: ColumnDef<Seed>[] = [
 ];
 
 export function SeedsTable({ seeds, isLoading }: SeedsTableProps) {
+  const setEditingSeed = useViewStore((state) => state.setEditingSeed);
+
   if (isLoading) {
     return <Loading size="sm" className="h-32" />;
   }
@@ -161,6 +167,10 @@ export function SeedsTable({ seeds, isLoading }: SeedsTableProps) {
       columns={columns}
       data={seeds}
       emptyMessage="No seeds yet. Capture your first idea!"
+      // Titles and descriptions are truncated to one line to keep the list scannable,
+      // so the row has to lead somewhere that shows the full text. Opening the seed
+      // does that, and matches how rows behave in the projects table.
+      onRowClick={(seed) => setEditingSeed(seed.id)}
     />
   );
 }
