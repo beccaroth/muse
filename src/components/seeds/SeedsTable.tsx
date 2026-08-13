@@ -85,10 +85,9 @@ interface ColumnOptions {
 const getColumns = ({ expandedId, onToggle }: ColumnOptions): ColumnDef<Seed>[] => [
   {
     accessorKey: 'title',
-    // Percentage widths rather than fixed: the seeds panel is a third of the dashboard
-    // on desktop but full-bleed on mobile, and percentages leave the title ~50% more
-    // room at narrow widths while still never clipping the type badge or the date.
-    meta: { className: 'w-[46%] min-w-0' },
+    // No width: under table-fixed the unsized column absorbs whatever the others
+    // leave, which keeps the title as wide as possible at every panel size.
+    meta: { className: 'min-w-0' },
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Title" />
     ),
@@ -145,7 +144,7 @@ const getColumns = ({ expandedId, onToggle }: ColumnOptions): ColumnDef<Seed>[] 
   },
   {
     accessorKey: 'project_type',
-    meta: { className: 'w-[20%]' },
+    meta: { className: 'w-[22%]' },
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Type" />
     ),
@@ -165,7 +164,7 @@ const getColumns = ({ expandedId, onToggle }: ColumnOptions): ColumnDef<Seed>[] 
   },
   {
     accessorKey: 'date_added',
-    meta: { className: 'w-[24%]' },
+    meta: { className: 'w-[26%]' },
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Added" />
     ),
@@ -180,7 +179,10 @@ const getColumns = ({ expandedId, onToggle }: ColumnOptions): ColumnDef<Seed>[] 
   },
   {
     id: 'actions',
-    meta: { className: 'w-[10%]' },
+    // Fixed, not a percentage: this cell holds a 32px button, and at a 320-375px
+    // viewport 10% resolved to ~32px of cell — the button spilled past the rounded
+    // border that clips it and pushed the table into a few px of horizontal scroll.
+    meta: { className: 'w-12' },
     cell: ({ row }) => <ActionsCell seed={row.original} />,
     enableSorting: false,
   },
