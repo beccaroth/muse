@@ -1,3 +1,4 @@
+import { useCallback, useMemo, useState } from 'react';
 import { format } from 'date-fns';
 import type { ColumnDef } from '@tanstack/react-table';
 import { DataTable, DataTableColumnHeader } from '@/components/ui/data-table';
@@ -32,8 +33,8 @@ function ActionsCell({ seed }: { seed: Seed }) {
   const isArchived = seed.status === 'archived';
 
   return (
-    // Rows open the seed, so the menu has to stop its clicks from bubbling —
-    // otherwise every menu interaction would also fire the row handler.
+    // The row toggles expansion, so the menu has to stop its clicks from bubbling —
+    // otherwise every menu interaction would also expand or collapse the row.
     <div onClick={(e) => e.stopPropagation()}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -76,7 +77,12 @@ function ActionsCell({ seed }: { seed: Seed }) {
   );
 }
 
-const columns: ColumnDef<Seed>[] = [
+interface ColumnOptions {
+  expandedId: string | null;
+  onToggle: (seedId: string) => void;
+}
+
+const getColumns = ({ expandedId, onToggle }: ColumnOptions): ColumnDef<Seed>[] => [
   {
     accessorKey: 'title',
     // Percentage widths rather than fixed: the seeds panel is a third of the dashboard
@@ -88,23 +94,52 @@ const columns: ColumnDef<Seed>[] = [
     ),
     cell: ({ row }) => {
       const seed = row.original;
-      return (
-        <div className="min-w-0">
-          <div className={cn('font-medium flex items-center gap-2', seed.status === 'archived' && 'text-muted-foreground line-through')}>
+      const isExpanded = expandedId === seed.id;
+      const isArchived = seed.status === 'archived';
+
+      const body = (
+        <div className="min-w-0 text-left">
+          <div className={cn('font-medium flex items-center gap-2', isArchived && 'text-muted-foreground line-through')}>
             {seed.icon && <span className="shrink-0">{seed.icon}</span>}
-            <span className="truncate">{seed.title}</span>
+            {/* The cell is nowrap, so wrapping has to be re-enabled explicitly when
+                expanded; `break-words` splits the one description that is a bare URL. */}
+            <span className={isExpanded ? 'whitespace-normal break-words' : 'truncate'}>
+              {seed.title}
+            </span>
           </div>
           {seed.description && (
-            // `truncate` rather than `line-clamp-1`: the cell is nowrap, so the clamp
-            // never wrapped anything and the element kept its full intrinsic width.
             <div
-              className={cn('text-sm text-muted-foreground truncate', seed.status === 'archived' && 'opacity-70')}
-              title={seed.description}
+              className={cn(
+                'text-sm text-muted-foreground',
+                isExpanded ? 'whitespace-normal break-words' : 'truncate',
+                isArchived && 'opacity-70',
+              )}
             >
               {seed.description}
             </div>
           )}
         </div>
+      );
+
+      // Nothing to reveal without a description, so no control is offered.
+      if (!seed.description) return body;
+
+      // A real button so the full text is reachable by keyboard and announced to
+      // screen readers; the row's own click handler covers pointer users, and the
+      // stopPropagation keeps the two from firing together and cancelling out.
+      return (
+        <button
+          type="button"
+          aria-expanded={isExpanded}
+          aria-label={isExpanded ? `Collapse "${seed.title}"` : `Expand "${seed.title}"`}
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggle(seed.id);
+          }}
+          className="w-full min-w-0 cursor-pointer rounded-sm text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          {body}
+        </button>
       );
     },
   },
@@ -152,7 +187,20 @@ const columns: ColumnDef<Seed>[] = [
 ];
 
 export function SeedsTable({ seeds, isLoading }: SeedsTableProps) {
-  const setEditingSeed = useViewStore((state) => state.setEditingSeed);
+  // Titles and descriptions are truncated to one line to keep the list scannable, so
+  // there has to be a way back to the full text. Expanding in place beats opening the
+  // edit dialog for it: reading an idea shouldn't put you in a form where a stray
+  // keystroke edits data. One at a time, so the list can't unfold into a wall of text.
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  const toggleExpanded = useCallback((seedId: string) => {
+    setExpandedId((current) => (current === seedId ? null : seedId));
+  }, []);
+
+  const columns = useMemo(
+    () => getColumns({ expandedId, onToggle: toggleExpanded }),
+    [expandedId, toggleExpanded],
+  );
 
   if (isLoading) {
     return <Loading size="sm" className="h-32" />;
@@ -167,10 +215,9 @@ export function SeedsTable({ seeds, isLoading }: SeedsTableProps) {
       columns={columns}
       data={seeds}
       emptyMessage="No seeds yet. Capture your first idea!"
-      // Titles and descriptions are truncated to one line to keep the list scannable,
-      // so the row has to lead somewhere that shows the full text. Opening the seed
-      // does that, and matches how rows behave in the projects table.
-      onRowClick={(seed) => setEditingSeed(seed.id)}
+      // Pointer users get the whole row as the target, which also supplies the hover
+      // and cursor affordance; the button inside the title cell covers keyboard users.
+      onRowClick={(seed) => seed.description && toggleExpanded(seed.id)}
     />
   );
 }
