@@ -3,8 +3,9 @@ import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
 import { useState } from 'react';
 import { KanbanColumn } from './KanbanColumn';
-import { KanbanCard } from './KanbanCard';
-import { PROJECT_PRIORITIES, PROJECT_STATUSES } from '@/lib/constants';
+import { KanbanCardOverlay } from './KanbanCard';
+import { KanbanShelf } from './KanbanShelf';
+import { PROJECT_PRIORITIES, PROJECT_STATUSES, SHELF_CARD_SIZE } from '@/lib/constants';
 import { useUpdateProject } from '@/hooks/useProjects';
 import { useViewStore } from '@/stores/viewStore';
 import type { Project } from '@/types';
@@ -145,27 +146,18 @@ export function ProjectKanban({ projects, isLoading }: ProjectKanbanProps) {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {Array.from({ length: 3 }).map((_, col) => (
-          <div key={col} className="flex flex-col rounded-lg bg-muted/50 p-3 min-h-[300px]">
-            <div className="flex items-center gap-2 mb-3">
-              <Skeleton className="h-3 w-3 rounded-full imagination-skeleton" />
-              <Skeleton className="h-4 w-16 imagination-skeleton" />
-            </div>
-            <div className="flex flex-col gap-2">
-              {Array.from({ length: 2 - col % 2 }).map((_, i) => (
-                <div key={i} className="rounded-lg border bg-card p-4 space-y-3">
-                  <Skeleton className="h-4 w-3/4 imagination-skeleton" />
-                  <Skeleton className="h-3 w-1/2 imagination-skeleton" />
-                  <div className="flex gap-1">
-                    <Skeleton className="h-5 w-14 rounded-full imagination-skeleton" />
-                  </div>
-                  <Skeleton className="h-2 w-full rounded-full imagination-skeleton" />
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
+      <div className="flex flex-col gap-8">
+        <Skeleton className="h-40 w-full rounded-xl imagination-skeleton" />
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,17rem),1fr))] gap-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-48 rounded-xl imagination-skeleton" />
+          ))}
+        </div>
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,14rem),1fr))] gap-3">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Skeleton key={i} className="h-16 rounded-xl imagination-skeleton" />
+          ))}
+        </div>
       </div>
     );
   }
@@ -173,15 +165,12 @@ export function ProjectKanban({ projects, isLoading }: ProjectKanbanProps) {
   return (
     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
       {kanbanGroupBy === 'priority' ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="flex flex-col gap-6">
           {PROJECT_PRIORITIES.map((priority) => (
-            <KanbanColumn
+            <KanbanShelf
               key={priority}
-              id={priority}
-              title={priority}
+              priority={priority}
               projects={projectsByPriority[priority]}
-              colorType="priority"
-              kanbanGroupBy={kanbanGroupBy}
             />
           ))}
         </div>
@@ -190,17 +179,19 @@ export function ProjectKanban({ projects, isLoading }: ProjectKanbanProps) {
           {statusesToShow.map((status) => (
             <KanbanColumn
               key={status}
-              id={status}
-              title={status}
+              status={status}
               projects={projectsByStatus[status]}
-              colorType="status"
-              kanbanGroupBy={kanbanGroupBy}
             />
           ))}
         </div>
       )}
       <DragOverlay>
-        {activeProject ? <KanbanCard project={activeProject} isDragging /> : null}
+        {activeProject ? (
+          <KanbanCardOverlay
+            project={activeProject}
+            size={kanbanGroupBy === 'priority' ? SHELF_CARD_SIZE[activeProject.priority] : 'standard'}
+          />
+        ) : null}
       </DragOverlay>
     </DndContext>
   );

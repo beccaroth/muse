@@ -1,30 +1,20 @@
 import { useDroppable } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { KanbanCard } from './KanbanCard';
-import { PRIORITY_COLORS, STATUS_DOT_COLORS } from '@/lib/constants';
+import { STATUS_DOT_COLORS } from '@/lib/constants';
 import type { Project } from '@/types';
-import type { ProjectPriority, ProjectStatus } from '@/lib/constants';
+import type { ProjectStatus } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 
 interface KanbanColumnProps {
-  id: string;
-  title: string;
+  status: ProjectStatus;
   projects: Project[];
-  colorType: 'priority' | 'status';
-  kanbanGroupBy: 'priority' | 'status';
 }
 
-export function KanbanColumn({ id, title, projects, colorType, kanbanGroupBy }: KanbanColumnProps) {
+export function KanbanColumn({ status, projects }: KanbanColumnProps) {
   const { setNodeRef, isOver } = useDroppable({
-    id,
+    id: status,
   });
-
-  const getDotColor = () => {
-    if (colorType === 'priority') {
-      return PRIORITY_COLORS[title as ProjectPriority] || 'bg-gray-500';
-    }
-    return STATUS_DOT_COLORS[title as ProjectStatus] || 'bg-gray-500';
-  };
 
   return (
     <div
@@ -35,8 +25,8 @@ export function KanbanColumn({ id, title, projects, colorType, kanbanGroupBy }: 
       )}
     >
       <div className="flex items-center gap-2 mb-3">
-        <div className={cn('w-3 h-3 rounded-full', getDotColor())} />
-        <h3 className="font-medium text-sm">{title}</h3>
+        <div className={cn('w-3 h-3 rounded-full', STATUS_DOT_COLORS[status])} />
+        <h3 className="font-display font-semibold tracking-tight">{status}</h3>
         <span className="text-xs text-muted-foreground ml-auto">{projects.length}</span>
       </div>
       <SortableContext items={projects.map((p) => p.id)} strategy={verticalListSortingStrategy}>
@@ -46,7 +36,7 @@ export function KanbanColumn({ id, title, projects, colorType, kanbanGroupBy }: 
               No projects
             </div>
           ) : (
-            projects.map((project) => <KanbanCard key={project.id} project={project} kanbanGroupBy={kanbanGroupBy} />)
+            projects.map((project) => <KanbanCard key={project.id} project={project} kanbanGroupBy="status" />)
           )}
         </div>
       </SortableContext>

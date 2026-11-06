@@ -3,11 +3,9 @@ import { ProjectsSection } from "@/components/projects/ProjectsSection";
 import { SeedsSection } from "@/components/seeds/SeedsSection";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useViewStore } from "@/stores/viewStore";
-import { cn } from "@/lib/utils";
 
 export function Dashboard() {
-  const { showSeeds, mobileDashboardTab, setMobileDashboardTab } =
-    useViewStore();
+  const { mobileDashboardTab, setMobileDashboardTab } = useViewStore();
 
   return (
     <main className="container mx-auto px-4 py-6">
@@ -38,14 +36,10 @@ export function Dashboard() {
         </Tabs>
       </div>
 
-      {/* Desktop: side-by-side layout */}
-      <div className="hidden sm:block">
-        <div className="grid grid-cols-12 gap-6">
-          <ProjectsSection
-            className={cn(!showSeeds ? "col-span-12" : "col-span-8")}
-          />
-          {showSeeds && <SeedsSection className="col-span-4" />}
-        </div>
+      {/* Desktop: projects get the full width, with the seeds inbox beneath them */}
+      <div className="hidden flex-col gap-10 sm:flex">
+        <ProjectsSection />
+        <SeedsSection collapsible className="border-t pt-8" />
       </div>
     </main>
   );

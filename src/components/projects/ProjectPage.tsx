@@ -66,7 +66,7 @@ export function ProjectPage() {
         <div className="flex items-center gap-4">
           {project.icon && <span className="text-4xl sm:text-5xl">{project.icon}</span>}
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold">{project.project_name}</h1>
+            <h1 className="font-display text-2xl sm:text-3xl font-bold tracking-tight">{project.project_name}</h1>
             <div className="flex items-center gap-3 mt-2">
               <span className="flex items-center gap-2">
                 <StatusDot status={project.status} className="h-3 w-3" />

@@ -8,16 +8,26 @@ import {
 } from "@/components/ui/popover";
 import { FilterToggle } from "@/components/ui/filter-toggle";
 import { SeedsTable } from "./SeedsTable";
+import SeedsToggleButton from "./SeedsToggleButton";
 import { useViewStore } from "@/stores/viewStore";
 import { useSeeds } from "@/hooks/useSeeds";
 
-export function SeedsSection({ className }: { className?: string }) {
+export function SeedsSection({
+  className,
+  collapsible = false,
+}: {
+  className?: string;
+  /** Adds a Hide/Show control in the header, which stays in place when the list hides. */
+  collapsible?: boolean;
+}) {
   const {
     setSeedFormOpen,
     showArchivedSeeds,
     setShowArchivedSeeds,
+    showSeeds,
   } =
     useViewStore();
+  const isCollapsed = collapsible && !showSeeds;
   const { data: seeds, isLoading } = useSeeds();
   const archivedCount = (seeds ?? []).filter((seed) => seed.status === "archived").length;
   const visibleSeeds = showArchivedSeeds
@@ -30,7 +40,7 @@ export function SeedsSection({ className }: { className?: string }) {
       icon={<Lightbulb className="h-5 w-5" />}
       actions={
         <>
-          <Popover>
+          {!isCollapsed && <Popover>
             <PopoverTrigger asChild>
               <Button
                 variant={showArchivedSeeds ? "default" : "outline"}
@@ -66,7 +76,8 @@ export function SeedsSection({ className }: { className?: string }) {
                 />
               </div>
             </PopoverContent>
-          </Popover>
+          </Popover>}
+          {collapsible && <SeedsToggleButton />}
           <Button size="sm" onClick={() => setSeedFormOpen(true)}>
             <Plus className="h-4 w-4 mr-1" />
             New Seed
@@ -75,7 +86,7 @@ export function SeedsSection({ className }: { className?: string }) {
       }
       className={className}
     >
-      <SeedsTable seeds={visibleSeeds} isLoading={isLoading} />
+      {!isCollapsed && <SeedsTable seeds={visibleSeeds} isLoading={isLoading} />}
       {/* SeedForm is mounted once in AuthenticatedLayout via GlobalForms */}
     </Section>
   );

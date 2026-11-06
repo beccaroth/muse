@@ -15,6 +15,7 @@ export default function SeedsToggleButton({
       variant="outline"
       size="sm"
       className={cn("group", className)}
+      aria-expanded={showSeeds}
       onClick={() => setShowSeeds(!showSeeds)}
     >
       <Lightbulb

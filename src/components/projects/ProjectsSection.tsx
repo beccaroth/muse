@@ -21,7 +21,6 @@ import { useViewStore } from "@/stores/viewStore";
 import { useProjects } from "@/hooks/useProjects";
 import { filterProjects } from "@/lib/projectFilters";
 import { cn } from "@/lib/utils";
-import SeedsToggleButton from "../seeds/SeedsToggleButton";
 
 export function ProjectsSection({ className }: { className?: string }) {
   const {
@@ -42,37 +41,27 @@ export function ProjectsSection({ className }: { className?: string }) {
   const activeFilterCount = [hideOnHold, hideNotStarted].filter(Boolean).length;
 
   return (
-    <Section
-      title="Projects"
-      icon={<FolderKanban className="h-5 w-5" />}
-      actions={
-        <>
-          <Button size="sm" onClick={() => setProjectFormOpen(true)}>
-            <Plus className="h-4 w-4 mr-1" />
-            New Project
-          </Button>
-          <SeedsToggleButton className="hidden md:inline-flex" />
-        </>
-      }
+    <Tabs
+      value={projectsView}
+      onValueChange={(v) => setProjectsView(v as "table" | "kanban")}
       className={className}
     >
-      <Tabs
-        value={projectsView}
-        onValueChange={(v) => setProjectsView(v as "table" | "kanban")}
-      >
-        <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-          <TabsList>
-            <TabsTrigger value="kanban">
-              <LayoutGrid className="h-4 w-4 mr-1" />
-              Kanban
-            </TabsTrigger>
-            <TabsTrigger value="table">
-              <TableIcon className="h-4 w-4 mr-1" />
-              Table
-            </TabsTrigger>
-          </TabsList>
-
-          <div className="flex items-center gap-2">
+      <Section
+        title="Projects"
+        titleClassName="text-2xl"
+        icon={<FolderKanban className="h-5 w-5" />}
+        actions={
+          <>
+            <TabsList>
+              <TabsTrigger value="kanban">
+                <LayoutGrid className="h-4 w-4 mr-1" />
+                Board
+              </TabsTrigger>
+              <TabsTrigger value="table">
+                <TableIcon className="h-4 w-4 mr-1" />
+                Table
+              </TabsTrigger>
+            </TabsList>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
@@ -155,17 +144,21 @@ export function ProjectsSection({ className }: { className?: string }) {
                 )}
               </PopoverContent>
             </Popover>
-          </div>
-        </div>
-
+            <Button size="sm" onClick={() => setProjectFormOpen(true)}>
+              <Plus className="h-4 w-4 mr-1" />
+              New Project
+            </Button>
+          </>
+        }
+      >
         <TabsContent value="kanban" className="mt-0">
           <ProjectKanban projects={visibleProjects} isLoading={isLoading} />
         </TabsContent>
         <TabsContent value="table" className="mt-0">
           <ProjectTable projects={visibleProjects} isLoading={isLoading} />
         </TabsContent>
-      </Tabs>
-      {/* ProjectForm is mounted once in AuthenticatedLayout via GlobalForms */}
-    </Section>
+        {/* ProjectForm is mounted once in AuthenticatedLayout via GlobalForms */}
+      </Section>
+    </Tabs>
   );
 }

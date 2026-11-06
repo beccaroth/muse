@@ -4,6 +4,15 @@ export type ProjectStatus = (typeof PROJECT_STATUSES)[number];
 export const PROJECT_PRIORITIES = ['Now', 'Next', 'Someday'] as const;
 export type ProjectPriority = (typeof PROJECT_PRIORITIES)[number];
 
+/** How much room a board card claims: the more urgent the project, the larger it is. */
+export type KanbanCardSize = 'feature' | 'standard' | 'compact';
+
+export const SHELF_CARD_SIZE: Record<ProjectPriority, KanbanCardSize> = {
+  Now: 'feature',
+  Next: 'standard',
+  Someday: 'compact',
+};
+
 // Default project types - users can add custom types
 export const DEFAULT_PROJECT_TYPES = ['App', 'Animation', 'Comic', 'Screenplay', 'Other', 'Short Film'] as const;
 
@@ -23,12 +32,6 @@ export const STATUS_DOT_COLORS: Record<ProjectStatus, string> = {
   'On hold': 'bg-red-500',
   'In progress': 'bg-yellow-500',
   'Done': 'bg-green-500',
-};
-
-export const PRIORITY_COLORS: Record<ProjectPriority, string> = {
-  'Now': 'bg-red-500',
-  'Next': 'bg-yellow-500',
-  'Someday': 'bg-blue-500',
 };
 
 // Known type colors for default types
