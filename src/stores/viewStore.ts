@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-type ViewType = 'table' | 'kanban';
+export type ProjectsView = 'shelves' | 'kanban' | 'table';
 type KanbanGroupBy = 'priority' | 'status';
 type MobileDashboardTab = 'projects' | 'seeds';
 export type TaskProjectSortOption = 'name-asc' | 'name-desc' | 'newest' | 'oldest';
@@ -10,6 +10,7 @@ const SHOW_COMPLETED_TASKS_KEY = 'muse-show-completed-tasks';
 const TASK_PROJECT_SORT_KEY = 'muse-task-project-sort';
 const HIDE_ON_HOLD_KEY = 'muse-hide-on-hold';
 const HIDE_NOT_STARTED_KEY = 'muse-hide-not-started';
+const KANBAN_REVERSED_KEY = 'muse-kanban-reversed';
 
 // Maps column id (e.g. "Now", "In progress") to ordered array of project IDs
 type KanbanCardOrder = Record<string, string[]>;
@@ -42,6 +43,11 @@ const getInitialHideNotStarted = (): boolean => {
   return window.localStorage.getItem(HIDE_NOT_STARTED_KEY) === 'true';
 };
 
+const getInitialKanbanReversed = (): boolean => {
+  if (typeof window === 'undefined') return false;
+  return window.localStorage.getItem(KANBAN_REVERSED_KEY) === 'true';
+};
+
 const getInitialTaskProjectSort = (): TaskProjectSortOption => {
   if (typeof window === 'undefined') return 'name-asc';
   const stored = window.localStorage.getItem(TASK_PROJECT_SORT_KEY);
@@ -52,10 +58,12 @@ const getInitialTaskProjectSort = (): TaskProjectSortOption => {
 };
 
 interface ViewState {
-  projectsView: ViewType;
-  setProjectsView: (view: ViewType) => void;
+  projectsView: ProjectsView;
+  setProjectsView: (view: ProjectsView) => void;
   kanbanGroupBy: KanbanGroupBy;
   setKanbanGroupBy: (groupBy: KanbanGroupBy) => void;
+  kanbanReversed: boolean;
+  setKanbanReversed: (reversed: boolean) => void;
   showDoneColumn: boolean;
   setShowDoneColumn: (show: boolean) => void;
   hideOnHold: boolean;
@@ -91,10 +99,17 @@ interface ViewState {
 }
 
 export const useViewStore = create<ViewState>((set) => ({
-  projectsView: 'kanban',
+  projectsView: 'shelves',
   setProjectsView: (view) => set({ projectsView: view }),
   kanbanGroupBy: 'priority',
   setKanbanGroupBy: (groupBy) => set({ kanbanGroupBy: groupBy }),
+  kanbanReversed: getInitialKanbanReversed(),
+  setKanbanReversed: (reversed) => {
+    set({ kanbanReversed: reversed });
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(KANBAN_REVERSED_KEY, String(reversed));
+    }
+  },
   showDoneColumn: false,
   setShowDoneColumn: (show) => set({ showDoneColumn: show }),
   hideOnHold: getInitialHideOnHold(),

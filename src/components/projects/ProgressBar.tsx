@@ -6,9 +6,12 @@ interface ProgressBarProps {
   className?: string;
   showLabel?: boolean;
   onChange?: (value: number) => void;
+  /** `feature` is for the dark plum surface of a Now card. */
+  variant?: 'default' | 'feature';
 }
 
-export function ProgressBar({ progress, className, showLabel = false, onChange }: ProgressBarProps) {
+export function ProgressBar({ progress, className, showLabel = false, onChange, variant = 'default' }: ProgressBarProps) {
+  const isFeature = variant === 'feature';
   const clampedProgress = Math.max(0, Math.min(100, progress));
   const trackRef = useRef<HTMLDivElement>(null);
 
@@ -44,7 +47,8 @@ export function ProgressBar({ progress, className, showLabel = false, onChange }
       <div
         ref={trackRef}
         className={cn(
-          'flex-1 h-2 bg-secondary rounded-full overflow-hidden',
+          'flex-1 h-2 rounded-full overflow-hidden',
+          isFeature ? 'bg-white/20' : 'bg-secondary',
           isInteractive && 'cursor-pointer'
         )}
         onMouseDown={handleMouseDown}
@@ -54,6 +58,8 @@ export function ProgressBar({ progress, className, showLabel = false, onChange }
             'h-full rounded-full transition-all duration-200',
             clampedProgress === 100
               ? 'bg-gradient-to-r from-green-500 to-emerald-400 shadow-[0_0_8px_oklch(0.7_0.2_145/0.5)]'
+              : isFeature
+              ? 'bg-spark'
               : clampedProgress > 0
               ? 'bg-gradient-to-r from-primary to-primary/80'
               : 'bg-primary'
@@ -62,7 +68,9 @@ export function ProgressBar({ progress, className, showLabel = false, onChange }
         />
       </div>
       {showLabel && (
-        <span className="text-xs text-muted-foreground min-w-[3ch]">{clampedProgress}%</span>
+        <span className={cn('text-xs min-w-[3ch] tabular-nums', isFeature ? 'text-feature-foreground' : 'text-muted-foreground')}>
+          {clampedProgress}%
+        </span>
       )}
     </div>
   );

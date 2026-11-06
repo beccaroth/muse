@@ -24,7 +24,7 @@ interface SeedsTableProps {
   isLoading: boolean;
 }
 
-function ActionsCell({ seed }: { seed: Seed }) {
+export function SeedActionsMenu({ seed }: { seed: Seed }) {
   const { setEditingSeed } = useViewStore();
   const deleteSeed = useDeleteSeed();
   const updateSeed = useUpdateSeed();
@@ -34,7 +34,7 @@ function ActionsCell({ seed }: { seed: Seed }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-8 w-8">
+        <Button variant="ghost" size="icon" className="h-8 w-8" aria-label={`Actions for ${seed.title}`}>
           <MoreHorizontal className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
@@ -75,9 +75,8 @@ function ActionsCell({ seed }: { seed: Seed }) {
 const columns: ColumnDef<Seed>[] = [
   {
     accessorKey: 'title',
-    // Percentage widths rather than fixed: the seeds panel is a third of the dashboard
-    // on desktop but full-bleed on mobile, and percentages leave the title ~50% more
-    // room at narrow widths while still never clipping the type badge or the date.
+    // Percentage widths rather than fixed, so the title gets the spare room on wide
+    // screens without the type badge or the date ever clipping on narrow ones.
     meta: { className: 'w-[46%] min-w-0' },
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Title" />
@@ -142,7 +141,7 @@ const columns: ColumnDef<Seed>[] = [
   {
     id: 'actions',
     meta: { className: 'w-[10%]' },
-    cell: ({ row }) => <ActionsCell seed={row.original} />,
+    cell: ({ row }) => <SeedActionsMenu seed={row.original} />,
     enableSorting: false,
   },
 ];

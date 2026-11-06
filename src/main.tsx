@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { router } from './router';
 import { AuthProvider, useAuth } from './stores/authStore';
 import { Loading } from './components/ui/loading';
+import '@fontsource-variable/bricolage-grotesque';
 import './index.css';
 
 const queryClient = new QueryClient({
