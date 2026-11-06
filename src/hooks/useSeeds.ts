@@ -1,12 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabase';
+import { db } from '@/lib/db';
 import type { Seed, SeedInsert, SeedUpdate } from '@/types';
 
 export function useSeeds() {
   return useQuery({
     queryKey: ['seeds'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from('seeds')
         .select('*')
         .order('date_added', { ascending: false });
@@ -21,7 +21,7 @@ export function useSeed(id: string | null) {
     queryKey: ['seeds', id],
     queryFn: async () => {
       if (!id) return null;
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from('seeds')
         .select('*')
         .eq('id', id)
@@ -37,7 +37,7 @@ export function useCreateSeed() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (seed: SeedInsert) => {
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from('seeds')
         .insert(seed)
         .select()
@@ -56,7 +56,7 @@ export function useUpdateSeed() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, ...updates }: SeedUpdate) => {
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from('seeds')
         .update(updates)
         .eq('id', id)
@@ -76,7 +76,7 @@ export function useDeleteSeed() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { error } = await db
         .from('seeds')
         .delete()
         .eq('id', id);

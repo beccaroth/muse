@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabase';
+import { db } from '@/lib/db';
 import { DEFAULT_PROJECT_TYPES } from '@/lib/constants';
 
 export function useProjectTypes() {
@@ -7,8 +7,8 @@ export function useProjectTypes() {
     queryKey: ['project-types'],
     queryFn: async () => {
       const [{ data: seeds, error: seedsError }, { data: projects, error: projectsError }] = await Promise.all([
-        supabase.from('seeds').select('project_type'),
-        supabase.from('projects').select('project_types'),
+        db.from('seeds').select('project_type'),
+        db.from('projects').select('project_types'),
       ]);
 
       if (seedsError) throw seedsError;

@@ -31,8 +31,6 @@ dist-ssr
 # Vercel
 .vercel
 
-# Supabase
-supabase/.temp/
 
 # This project uses pnpm (see "packageManager" in package.json). A stray
 # `npm install` would recreate a package-lock.json that nothing builds from.

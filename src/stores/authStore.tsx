@@ -1,6 +1,9 @@
 import { useState, useEffect, useCallback, createContext, useContext } from 'react';
-import { supabase } from '@/lib/supabase';
-import type { Session } from '@supabase/supabase-js';
+import { db } from '@/lib/db';
+
+type Session = NonNullable<
+  Awaited<ReturnType<typeof db.auth.getSession>>['data']['session']
+>;
 
 export interface AuthContext {
   isAuthenticated: boolean;
@@ -17,12 +20,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    db.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setIsLoading(false);
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+    const { data: { subscription } } = db.auth.onAuthStateChange(
       (_event, session) => {
         setSession(session);
       }
@@ -32,12 +35,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = useCallback(async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error } = await db.auth.signInWithPassword({ email, password });
     if (error) throw error;
   }, []);
 
   const logout = useCallback(async () => {
-    const { error } = await supabase.auth.signOut();
+    const { error } = await db.auth.signOut();
     if (error) throw error;
   }, []);
 

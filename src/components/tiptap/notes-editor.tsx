@@ -14,7 +14,6 @@ import { Placeholder } from '@tiptap/extension-placeholder';
 import { Selection } from '@tiptap/extensions';
 
 // --- Tiptap Node ---
-import { ImageUploadNode } from '@/components/tiptap/node/image-upload-node/image-upload-node-extension';
 import { HorizontalRule } from '@/components/tiptap/node/horizontal-rule-node/horizontal-rule-node-extension';
 import '@/components/tiptap/node/blockquote-node/blockquote-node.scss';
 import '@/components/tiptap/node/code-block-node/code-block-node.scss';
@@ -41,11 +40,6 @@ import { FloatingToolbar } from '@/components/tiptap/ui/floating-toolbar';
 
 // --- Hooks ---
 import { useIsBreakpoint } from '@/hooks/use-is-breakpoint';
-
-// --- Lib ---
-import { toast } from 'sonner';
-
-import { ACCEPTED_IMAGE_TYPES, handleImageUpload, MAX_FILE_SIZE } from '@/lib/tiptap-utils';
 
 // --- Styles ---
 import '@/components/tiptap/templates/simple/simple-editor.scss';
@@ -114,18 +108,6 @@ export function NotesEditor({
       Subscript,
       Selection,
       Placeholder.configure({ placeholder }),
-      ImageUploadNode.configure({
-        // Matches the bucket's allowed_mime_types; 'image/*' would let the picker offer
-        // formats the upload then rejects.
-        accept: ACCEPTED_IMAGE_TYPES.join(','),
-        maxSize: MAX_FILE_SIZE,
-        limit: 3,
-        upload: handleImageUpload,
-        onError: (error: Error) => {
-          console.error('Upload failed:', error);
-          toast.error(error.message || 'Image upload failed');
-        },
-      }),
     ],
     [placeholder],
   );

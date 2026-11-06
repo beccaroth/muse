@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/stores/authStore";
+import { db } from "@/lib/db";
 
 const loginSchema = z.object({
   email: z.email("Invalid email"),
@@ -38,10 +39,14 @@ export function LoginPage() {
   const search = useSearch({ from: "/login" });
   const auth = useAuth();
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+  const [isSendingReset, setIsSendingReset] = useState(false);
 
   const {
     register,
     handleSubmit,
+    trigger,
+    getValues,
     formState: { errors, isSubmitting },
   } = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
@@ -49,6 +54,7 @@ export function LoginPage() {
 
   const onSubmit = async (data: LoginForm) => {
     setError(null);
+    setNotice(null);
     try {
       await auth.login(data.email, data.password);
       await router.invalidate();
@@ -60,6 +66,28 @@ export function LoginPage() {
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");
+    }
+  };
+
+  // Neon Auth only sets passwords through an emailed reset link, so this is also how the
+  // owner sets the first password for an account created in the Neon console.
+  const onForgotPassword = async () => {
+    setError(null);
+    setNotice(null);
+    if (!(await trigger("email"))) return;
+    setIsSendingReset(true);
+    try {
+      const { error } = await db.auth.resetPasswordForEmail(getValues("email"), {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (error) throw error;
+      // Same message whether or not the account exists, so the form can't be used to
+      // probe for registered emails.
+      setNotice("If that email has an account, a reset link is on its way.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not send reset email");
+    } finally {
+      setIsSendingReset(false);
     }
   };
 
@@ -90,7 +118,17 @@ export function LoginPage() {
               )}
             </div>
             <div className="flex flex-col gap-2">
-              <Label htmlFor="password">Password</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password">Password</Label>
+                <button
+                  type="button"
+                  onClick={onForgotPassword}
+                  disabled={isSendingReset}
+                  className="text-sm text-muted-foreground underline-offset-4 hover:underline disabled:opacity-50"
+                >
+                  Forgot password?
+                </button>
+              </div>
               <Input
                 id="password"
                 type="password"
@@ -108,6 +146,9 @@ export function LoginPage() {
           <CardFooter className="flex flex-col gap-2">
             {error && (
               <p className="text-sm text-destructive text-center">{error}</p>
+            )}
+            {notice && (
+              <p className="text-sm text-muted-foreground text-center">{notice}</p>
             )}
             <Button type="submit" disabled={isSubmitting} className="w-full">
               {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}

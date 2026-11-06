@@ -1,12 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabase';
+import { db } from '@/lib/db';
 import type { Task, TaskInsert, TaskUpdate } from '@/types';
 
 export function useTasks(projectId: string) {
   return useQuery({
     queryKey: ['tasks', projectId],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from('tasks')
         .select('*')
         .eq('project_id', projectId)
@@ -22,7 +22,7 @@ export function useAllTasks() {
   return useQuery({
     queryKey: ['tasks'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from('tasks')
         .select('*')
         .order('sort_order', { ascending: true });
@@ -36,7 +36,7 @@ export function useCreateTask() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (task: TaskInsert) => {
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from('tasks')
         .insert(task)
         .select()
@@ -64,7 +64,7 @@ export function useUpdateTask() {
       const { id, projectId, ...updates } = variables;
       void projectId;
 
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from('tasks')
         .update(updates)
         .eq('id', id)
@@ -109,7 +109,7 @@ export function useDeleteTask() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ id }: { id: string; projectId: string }) => {
-      const { error } = await supabase
+      const { error } = await db
         .from('tasks')
         .delete()
         .eq('id', id);

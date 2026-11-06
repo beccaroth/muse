@@ -13,10 +13,6 @@ import {
   type NodeWithPos,
 } from "@tiptap/react"
 
-import { supabase } from "@/lib/supabase"
-
-export const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
-
 export const MAC_SYMBOLS: Record<string, string> = {
   mod: "⌘",
   command: "⌘",
@@ -351,85 +347,6 @@ export function selectionWithinConvertibleTypes(
   }
 
   return false
-}
-
-export const NOTES_IMAGE_BUCKET = "notes-images"
-
-export const ACCEPTED_IMAGE_TYPES = [
-  "image/jpeg",
-  "image/png",
-  "image/gif",
-  "image/webp",
-]
-
-const fileExtension = (file: File): string => {
-  const fromName = file.name.split(".").pop()
-  if (fromName && /^[a-z0-9]{1,5}$/i.test(fromName)) return fromName.toLowerCase()
-  return file.type.split("/")[1] ?? "bin"
-}
-
-/**
- * Uploads an image to Supabase Storage and returns its public URL.
- *
- * This replaces the Tiptap starter's demo stub, which faked progress and returned a
- * placeholder path — every image a user inserted was silently discarded.
- *
- * The bucket is public-read: the returned URL is embedded in the notes HTML and has to
- * keep resolving, and a signed URL would expire and leave dead images in saved notes.
- * Writes are restricted to authenticated users by RLS on storage.objects, and object
- * names are random UUIDs so they aren't guessable.
- *
- * @param file The file to upload
- * @param onProgress Optional callback for tracking upload progress
- * @param abortSignal Optional AbortSignal for cancelling the upload
- * @returns Promise resolving to the URL of the uploaded image
- */
-export const handleImageUpload = async (
-  file: File,
-  onProgress?: (event: { progress: number }) => void,
-  abortSignal?: AbortSignal
-): Promise<string> => {
-  if (!file) {
-    throw new Error("No file provided")
-  }
-
-  if (file.size > MAX_FILE_SIZE) {
-    throw new Error(
-      `File size exceeds maximum allowed (${MAX_FILE_SIZE / (1024 * 1024)}MB)`
-    )
-  }
-
-  if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
-    throw new Error(`Unsupported image type: ${file.type || "unknown"}`)
-  }
-
-  if (abortSignal?.aborted) {
-    throw new Error("Upload cancelled")
-  }
-
-  // supabase-js does not surface upload progress, so report start and completion rather
-  // than inventing intermediate values.
-  onProgress?.({ progress: 0 })
-
-  const path = `${crypto.randomUUID()}.${fileExtension(file)}`
-  const { error } = await supabase.storage
-    .from(NOTES_IMAGE_BUCKET)
-    .upload(path, file, { contentType: file.type, upsert: false })
-
-  if (error) {
-    throw error
-  }
-
-  if (abortSignal?.aborted) {
-    // The upload already landed; drop the orphan rather than leaving it in the bucket.
-    await supabase.storage.from(NOTES_IMAGE_BUCKET).remove([path])
-    throw new Error("Upload cancelled")
-  }
-
-  onProgress?.({ progress: 100 })
-
-  const { data } = supabase.storage.from(NOTES_IMAGE_BUCKET).getPublicUrl(path)
-  return data.publicUrl
 }
 
 type ProtocolOptions = {

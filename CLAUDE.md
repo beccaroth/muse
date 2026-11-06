@@ -1,6 +1,6 @@
 # Museboard
 
-Personal creative projects dashboard for organizing ideas and tracking progress. Single-user app with Supabase Auth.
+Personal creative projects dashboard for organizing ideas and tracking progress. Single-user app with Neon Auth.
 
 ## Tech Stack
 
@@ -12,7 +12,7 @@ Personal creative projects dashboard for organizing ideas and tracking progress.
 - **Rich text:** Tiptap v3 (ProseMirror-based)
 - **Forms:** React Hook Form + Zod v4 + @hookform/resolvers
 - **Drag & drop:** dnd-kit
-- **Database:** Supabase (PostgreSQL) with Row Level Security
+- **Database:** Neon (PostgreSQL) with Row Level Security; queried from the browser via the Neon Data API (PostgREST-compatible) using `@neondatabase/neon-js`
 - **Toasts:** Sonner
 
 ## Commands
@@ -37,7 +37,7 @@ src/
 │   └── ui/            # shadcn/ui primitives (added via `npx shadcn@latest add`)
 ├── hooks/             # TanStack Query wrappers (useProjects, useSeeds) + utility hooks
 ├── stores/            # authStore (Context), viewStore + themeStore (Zustand)
-├── lib/               # supabase client, constants, utils (cn())
+├── lib/               # Neon client (db.ts), constants, utils (cn())
 ├── types/             # TypeScript interfaces (Project, Seed, Task)
 ├── router.tsx         # Route tree and auth guards
 └── main.tsx           # Entry point with providers
@@ -49,6 +49,7 @@ TanStack Router with auth guards via `beforeLoad()`. Routes are declared with
 `createRoute()` in `src/router.tsx` — there is no file-based routing or codegen step.
 
 - `/login` — public, redirects to `/` if already authenticated
+- `/reset-password` — public, landing page for the emailed password-reset link
 - `/` — Dashboard (projects + seeds sections)
 - `/project/$projectId` — Project detail page with notes editor
 - `/tasks` — Tasks across all projects
@@ -69,16 +70,30 @@ return a 404 on direct navigation.
 
 ## Database
 
-Supabase with migrations in `supabase/migrations/` (numbered SQL files). Tables:
+Neon (project `museboard`, branch `main`, database `neondb`) with migrations in
+`db/migrations/` (numbered SQL files, applied manually — e.g. with the Neon SQL editor or
+`psql`). Neon Auth and the Data API must be enabled before the first migration, which
+references their `authenticated`/`anonymous` roles and `auth.user_id()`. Tables:
 
 - **projects** — id, project_name, icon, status (enum), priority (enum), project_types (text[]), description, notes (HTML), progress (0-100), start_date, end_date
-- **seeds** — id, title, icon, description, project_type, date_added
-- **tasks** — id, project_id (FK), title, completed, sort_order (future feature)
+- **seeds** — id, title, icon, description, project_type, date_added, status ('active' | 'archived')
+- **tasks** — id, project_id (FK), title, completed, sort_order, due_date
 
 Status enum: `'Not started' | 'On hold' | 'In progress' | 'Done'`
 Priority enum: `'Now' | 'Next' | 'Someday'`
 
-RLS enabled on all tables. Policies currently allow all authenticated users.
+RLS enabled on all tables. Policies allow only the owner's Neon Auth user ID (hardcoded in
+`db/migrations/001_schema.sql`), not every signed-in user: Neon Auth's shared Google
+sign-in can create users even with email sign-up disabled. `anonymous` has no grants.
+
+## Auth
+
+`src/lib/db.ts` creates the Neon client with `SupabaseAuthAdapter`, which keeps the
+supabase-js auth API (`signInWithPassword`, `getSession`, `onAuthStateChange`,
+`signOut`) used by `src/stores/authStore.tsx`. Email sign-up is disabled; accounts are
+created in the Neon console. Passwords are set via the emailed reset link
+("Forgot password?" on `/login` → `/reset-password`). The app's production origin must be
+a trusted domain in Neon Auth for the reset redirect to be accepted.
 
 ## Key Patterns
 
@@ -92,6 +107,6 @@ RLS enabled on all tables. Policies currently allow all authenticated users.
 ## Environment Variables
 
 ```
-VITE_SUPABASE_URL=<supabase project url>
-VITE_SUPABASE_ANON_KEY=<supabase anon key>
+VITE_NEON_AUTH_URL=<Neon Auth URL>
+VITE_NEON_DATA_API_URL=<Neon Data API URL>
 ```

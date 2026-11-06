@@ -1,13 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { supabase } from '@/lib/supabase';
+import { db } from '@/lib/db';
 import type { Project, ProjectInsert, ProjectUpdate } from '@/types';
 
 export function useProjects() {
   return useQuery({
     queryKey: ['projects'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from('projects')
         .select('*')
         .order('created_at', { ascending: false });
@@ -22,7 +22,7 @@ export function useProject(id: string | null) {
     queryKey: ['projects', id],
     queryFn: async () => {
       if (!id) return null;
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from('projects')
         .select('*')
         .eq('id', id)
@@ -38,7 +38,7 @@ export function useCreateProject() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (project: ProjectInsert) => {
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from('projects')
         .insert(project)
         .select()
@@ -57,7 +57,7 @@ export function useUpdateProject() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, ...updates }: ProjectUpdate) => {
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from('projects')
         .update(updates)
         .eq('id', id)
@@ -80,7 +80,7 @@ export function useDeleteProject() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { error } = await db
         .from('projects')
         .delete()
         .eq('id', id);

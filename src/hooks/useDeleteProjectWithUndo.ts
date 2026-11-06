@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabase';
+import { db } from '@/lib/db';
 import type { Project } from '@/types';
 import { toast } from 'sonner';
 
@@ -30,7 +30,7 @@ export function useDeleteProjectWithUndo() {
 
       // Select the deleted rows: a DELETE that RLS filters out returns 204 with no
       // error, so `error` alone would report success for a row that still exists.
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from('projects')
         .delete()
         .eq('id', projectId)
