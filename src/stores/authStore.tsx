@@ -1,6 +1,10 @@
 import { useState, useEffect, useCallback, createContext, useContext } from 'react';
-import { supabase } from '@/lib/supabase';
-import type { Session } from '@supabase/supabase-js';
+import { flushSync } from 'react-dom';
+import { db } from '@/lib/db';
+
+type Session = NonNullable<
+  Awaited<ReturnType<typeof db.auth.getSession>>['data']['session']
+>;
 
 export interface AuthContext {
   isAuthenticated: boolean;
@@ -17,12 +21,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    db.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setIsLoading(false);
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+    // Neon's adapter only relays auth events from *other* tabs (it drops events whose
+    // client ID matches this tab), so this listener keeps tabs in sync but does not
+    // fire for this tab's own sign-in or sign-out. login/logout set state directly.
+    const { data: { subscription } } = db.auth.onAuthStateChange(
       (_event, session) => {
         setSession(session);
       }
@@ -31,14 +38,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
+  // flushSync commits the new session before the caller continues, so the
+  // router.invalidate() that follows re-runs beforeLoad guards against the updated
+  // auth context instead of the stale one.
   const login = useCallback(async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await db.auth.signInWithPassword({ email, password });
     if (error) throw error;
+    flushSync(() => setSession(data.session));
   }, []);
 
   const logout = useCallback(async () => {
-    const { error } = await supabase.auth.signOut();
+    const { error } = await db.auth.signOut();
     if (error) throw error;
+    flushSync(() => setSession(null));
   }, []);
 
   return (

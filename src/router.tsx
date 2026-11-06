@@ -31,6 +31,22 @@ const loginRoute = createRoute({
   },
 });
 
+// Password reset route — public; the emailed link from Neon Auth lands here with ?token=
+const resetPasswordRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/reset-password',
+  component: lazyRouteComponent(
+    () => import('@/components/auth/ResetPasswordPage'),
+    'ResetPasswordPage',
+  ),
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): { token?: string; error?: string } => ({
+    token: typeof search.token === 'string' ? search.token : undefined,
+    error: typeof search.error === 'string' ? search.error : undefined,
+  }),
+});
+
 // Authenticated layout route — protects all child routes
 const authenticatedRoute = createRoute({
   getParentRoute: () => rootRoute,
@@ -79,6 +95,7 @@ const tasksRoute = createRoute({
 // Route tree
 const routeTree = rootRoute.addChildren([
   loginRoute,
+  resetPasswordRoute,
   authenticatedRoute.addChildren([indexRoute, projectRoute, tasksRoute]),
 ]);
 

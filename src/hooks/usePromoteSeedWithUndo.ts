@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/lib/supabase';
+import { db } from '@/lib/db';
 import type { Seed, Project } from '@/types';
 import { toast } from 'sonner';
 
@@ -29,7 +29,7 @@ export function usePromoteSeedWithUndo() {
       const { seed, tempProjectId } = entry;
 
       try {
-        const { data: newProject, error: createError } = await supabase
+        const { data: newProject, error: createError } = await db
           .from('projects')
           .insert({
             project_name: seed.title,
@@ -49,7 +49,7 @@ export function usePromoteSeedWithUndo() {
 
         // Select the deleted rows: a DELETE that RLS filters out returns 204 with no
         // error, which would leave the new project created and the seed still present.
-        const { data: deletedSeeds, error: deleteError } = await supabase
+        const { data: deletedSeeds, error: deleteError } = await db
           .from('seeds')
           .delete()
           .eq('id', seed.id)
