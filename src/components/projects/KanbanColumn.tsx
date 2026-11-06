@@ -1,19 +1,21 @@
 import { useDroppable } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { KanbanCard } from './KanbanCard';
-import { STATUS_DOT_COLORS } from '@/lib/constants';
 import type { Project } from '@/types';
-import type { ProjectStatus } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 
 interface KanbanColumnProps {
-  status: ProjectStatus;
+  /** The priority or status this column holds; also its drop target id. */
+  title: string;
   projects: Project[];
+  groupBy: 'priority' | 'status';
+  /** Tailwind background class for the heading dot. */
+  dotClassName?: string;
 }
 
-export function KanbanColumn({ status, projects }: KanbanColumnProps) {
+export function KanbanColumn({ title, projects, groupBy, dotClassName }: KanbanColumnProps) {
   const { setNodeRef, isOver } = useDroppable({
-    id: status,
+    id: title,
   });
 
   return (
@@ -25,8 +27,8 @@ export function KanbanColumn({ status, projects }: KanbanColumnProps) {
       )}
     >
       <div className="flex items-center gap-2 mb-3">
-        <div className={cn('w-3 h-3 rounded-full', STATUS_DOT_COLORS[status])} />
-        <h3 className="font-display font-semibold tracking-tight">{status}</h3>
+        {dotClassName && <div className={cn('w-3 h-3 rounded-full', dotClassName)} />}
+        <h3 className="font-display font-semibold tracking-tight">{title}</h3>
         <span className="text-xs text-muted-foreground ml-auto">{projects.length}</span>
       </div>
       <SortableContext items={projects.map((p) => p.id)} strategy={verticalListSortingStrategy}>
@@ -36,7 +38,7 @@ export function KanbanColumn({ status, projects }: KanbanColumnProps) {
               No projects
             </div>
           ) : (
-            projects.map((project) => <KanbanCard key={project.id} project={project} kanbanGroupBy="status" />)
+            projects.map((project) => <KanbanCard key={project.id} project={project} kanbanGroupBy={groupBy} />)
           )}
         </div>
       </SortableContext>

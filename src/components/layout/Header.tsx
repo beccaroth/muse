@@ -139,7 +139,7 @@ export function Header() {
 
   return (
     <header className="border-b bg-background/80 backdrop-blur-sm sticky top-0 z-40">
-      <div className="container mx-auto px-4 py-4 flex items-center justify-between relative">
+      <div className="mx-auto w-full max-w-[96rem] px-4 lg:px-6 py-4 flex items-center justify-between relative">
         <div className="flex items-center gap-6">
           <MobileNav />
           <Link

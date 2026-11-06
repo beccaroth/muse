@@ -1,5 +1,6 @@
 import { FolderKanban, Lightbulb } from "lucide-react";
 import { ProjectsSection } from "@/components/projects/ProjectsSection";
+import { SeedsRail } from "@/components/seeds/SeedsRail";
 import { SeedsSection } from "@/components/seeds/SeedsSection";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useViewStore } from "@/stores/viewStore";
@@ -8,9 +9,9 @@ export function Dashboard() {
   const { mobileDashboardTab, setMobileDashboardTab } = useViewStore();
 
   return (
-    <main className="container mx-auto px-4 py-6">
-      {/* Mobile: tabbed layout for Projects / Seeds */}
-      <div className="sm:hidden">
+    <main className="mx-auto w-full max-w-[96rem] px-4 py-6 lg:px-6">
+      {/* Phones and tablets: tabbed layout, since a rail would squeeze the projects */}
+      <div className="lg:hidden">
         <Tabs
           value={mobileDashboardTab}
           onValueChange={(v) =>
@@ -36,10 +37,10 @@ export function Dashboard() {
         </Tabs>
       </div>
 
-      {/* Desktop: projects get the full width, with the seeds inbox beneath them */}
-      <div className="hidden flex-col gap-10 sm:flex">
-        <ProjectsSection />
-        <SeedsSection collapsible className="border-t pt-8" />
+      {/* Large screens: projects with the seeds rail beside them */}
+      <div className="hidden items-start gap-6 lg:flex">
+        <ProjectsSection className="min-w-0 flex-1" />
+        <SeedsRail />
       </div>
     </main>
   );

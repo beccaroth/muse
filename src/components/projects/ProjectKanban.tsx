@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { KanbanColumn } from './KanbanColumn';
 import { KanbanCardOverlay } from './KanbanCard';
 import { KanbanShelf } from './KanbanShelf';
-import { PROJECT_PRIORITIES, PROJECT_STATUSES, SHELF_CARD_SIZE } from '@/lib/constants';
+import { PROJECT_PRIORITIES, PROJECT_STATUSES, SHELF_CARD_SIZE, STATUS_DOT_COLORS } from '@/lib/constants';
 import { useUpdateProject } from '@/hooks/useProjects';
 import { useViewStore } from '@/stores/viewStore';
 import type { Project } from '@/types';
@@ -15,6 +15,8 @@ import type { ProjectPriority, ProjectStatus } from '@/lib/constants';
 interface ProjectKanbanProps {
   projects: Project[];
   isLoading: boolean;
+  /** Shelves always group by priority; Kanban columns follow the "Group by" filter. */
+  layout: 'shelves' | 'kanban';
 }
 
 function sortByCardOrder(projects: Project[], order: string[] | undefined): Project[] {
@@ -30,10 +32,11 @@ function sortByCardOrder(projects: Project[], order: string[] | undefined): Proj
   });
 }
 
-export function ProjectKanban({ projects, isLoading }: ProjectKanbanProps) {
+export function ProjectKanban({ projects, isLoading, layout }: ProjectKanbanProps) {
   const [activeProject, setActiveProject] = useState<Project | null>(null);
   const updateProject = useUpdateProject();
   const { kanbanGroupBy, showDoneColumn, hideOnHold, hideNotStarted, kanbanCardOrder, setKanbanCardOrder } = useViewStore();
+  const groupBy = layout === 'shelves' ? 'priority' : kanbanGroupBy;
 
   // Configure sensors with activation constraint so clicks work
   const sensors = useSensors(
@@ -45,7 +48,7 @@ export function ProjectKanban({ projects, isLoading }: ProjectKanbanProps) {
   );
 
   // Filter out Done projects when grouping by priority (unless showDoneColumn is true)
-  const filteredProjects = kanbanGroupBy === 'priority' && !showDoneColumn
+  const filteredProjects = groupBy === 'priority' && !showDoneColumn
     ? projects.filter((p) => p.status !== 'Done')
     : projects;
 
@@ -97,8 +100,8 @@ export function ProjectKanban({ projects, isLoading }: ProjectKanbanProps) {
     if (!project) return;
 
     // Determine which column the dragged card belongs to
-    const sourceCol = kanbanGroupBy === 'priority' ? project.priority : project.status;
-    const sourceProjects = kanbanGroupBy === 'priority'
+    const sourceCol = groupBy === 'priority' ? project.priority : project.status;
+    const sourceProjects = groupBy === 'priority'
       ? projectsByPriority[project.priority]
       : projectsByStatus[project.status];
 
@@ -106,12 +109,12 @@ export function ProjectKanban({ projects, isLoading }: ProjectKanbanProps) {
     // column either way, otherwise a drop onto a card writes that card's UUID into the
     // status/priority enum column.
     const columnIds: readonly string[] =
-      kanbanGroupBy === 'priority' ? PROJECT_PRIORITIES : statusesToShow;
+      groupBy === 'priority' ? PROJECT_PRIORITIES : statusesToShow;
     const overProject = projects.find((p) => p.id === overId);
     const targetCol = columnIds.includes(overId)
       ? overId
       : overProject
-        ? kanbanGroupBy === 'priority'
+        ? groupBy === 'priority'
           ? overProject.priority
           : overProject.status
         : null;
@@ -137,7 +140,7 @@ export function ProjectKanban({ projects, isLoading }: ProjectKanbanProps) {
     }
 
     // Cross-column move
-    if (kanbanGroupBy === 'priority') {
+    if (groupBy === 'priority') {
       updateProject.mutate({ id: projectId, priority: targetCol as ProjectPriority });
     } else {
       updateProject.mutate({ id: projectId, status: targetCol as ProjectStatus });
@@ -148,12 +151,12 @@ export function ProjectKanban({ projects, isLoading }: ProjectKanbanProps) {
     return (
       <div className="flex flex-col gap-8">
         <Skeleton className="h-40 w-full rounded-xl imagination-skeleton" />
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,17rem),1fr))] gap-3">
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,15rem),1fr))] gap-3">
           {Array.from({ length: 4 }).map((_, i) => (
             <Skeleton key={i} className="h-48 rounded-xl imagination-skeleton" />
           ))}
         </div>
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,14rem),1fr))] gap-3">
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,12rem),1fr))] gap-3">
           {Array.from({ length: 5 }).map((_, i) => (
             <Skeleton key={i} className="h-16 rounded-xl imagination-skeleton" />
           ))}
@@ -164,32 +167,49 @@ export function ProjectKanban({ projects, isLoading }: ProjectKanbanProps) {
 
   return (
     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-      {kanbanGroupBy === 'priority' ? (
-        <div className="flex flex-col gap-6">
-          {PROJECT_PRIORITIES.map((priority) => (
-            <KanbanShelf
-              key={priority}
-              priority={priority}
-              projects={projectsByPriority[priority]}
-            />
-          ))}
-        </div>
-      ) : (
-        <div className={`grid gap-4 grid-cols-1 sm:grid-cols-2 ${statusesToShow.length >= 4 ? 'lg:grid-cols-4' : 'lg:grid-cols-3'}`}>
-          {statusesToShow.map((status) => (
-            <KanbanColumn
-              key={status}
-              status={status}
-              projects={projectsByStatus[status]}
-            />
-          ))}
-        </div>
-      )}
+      {/* Container queries, because the width here depends on whether the Seeds rail is
+          open rather than on the size of the window. */}
+      <div className="@container">
+        {layout === 'shelves' ? (
+          <div className="flex flex-col gap-6">
+            {PROJECT_PRIORITIES.map((priority) => (
+              <KanbanShelf
+                key={priority}
+                priority={priority}
+                projects={projectsByPriority[priority]}
+              />
+            ))}
+          </div>
+        ) : groupBy === 'priority' ? (
+          <div className="grid grid-cols-1 gap-4 @xl:grid-cols-2 @3xl:grid-cols-3">
+            {PROJECT_PRIORITIES.map((priority) => (
+              <KanbanColumn
+                key={priority}
+                title={priority}
+                projects={projectsByPriority[priority]}
+                groupBy="priority"
+              />
+            ))}
+          </div>
+        ) : (
+          <div className={`grid grid-cols-1 gap-4 @xl:grid-cols-2 @3xl:grid-cols-3 ${statusesToShow.length >= 4 ? '@5xl:grid-cols-4' : ''}`}>
+            {statusesToShow.map((status) => (
+              <KanbanColumn
+                key={status}
+                title={status}
+                projects={projectsByStatus[status]}
+                groupBy="status"
+                dotClassName={STATUS_DOT_COLORS[status]}
+              />
+            ))}
+          </div>
+        )}
+      </div>
       <DragOverlay>
         {activeProject ? (
           <KanbanCardOverlay
             project={activeProject}
-            size={kanbanGroupBy === 'priority' ? SHELF_CARD_SIZE[activeProject.priority] : 'standard'}
+            size={layout === 'shelves' ? SHELF_CARD_SIZE[activeProject.priority] : 'standard'}
           />
         ) : null}
       </DragOverlay>

@@ -2,7 +2,8 @@ import {
   FolderKanban,
   Plus,
   Table as TableIcon,
-  LayoutGrid,
+  Rows3,
+  SquareKanban,
   Filter,
 } from "lucide-react";
 import { Section } from "@/components/layout/Section";
@@ -18,6 +19,7 @@ import { Separator } from "@/components/ui/separator";
 import { ProjectTable } from "./ProjectTable";
 import { ProjectKanban } from "./ProjectKanban";
 import { useViewStore } from "@/stores/viewStore";
+import type { ProjectsView } from "@/stores/viewStore";
 import { useProjects } from "@/hooks/useProjects";
 import { filterProjects } from "@/lib/projectFilters";
 import { cn } from "@/lib/utils";
@@ -43,7 +45,7 @@ export function ProjectsSection({ className }: { className?: string }) {
   return (
     <Tabs
       value={projectsView}
-      onValueChange={(v) => setProjectsView(v as "table" | "kanban")}
+      onValueChange={(v) => setProjectsView(v as ProjectsView)}
       className={className}
     >
       <Section
@@ -53,9 +55,13 @@ export function ProjectsSection({ className }: { className?: string }) {
         actions={
           <>
             <TabsList>
+              <TabsTrigger value="shelves">
+                <Rows3 className="h-4 w-4 mr-1" />
+                Shelves
+              </TabsTrigger>
               <TabsTrigger value="kanban">
-                <LayoutGrid className="h-4 w-4 mr-1" />
-                Board
+                <SquareKanban className="h-4 w-4 mr-1" />
+                Kanban
               </TabsTrigger>
               <TabsTrigger value="table">
                 <TableIcon className="h-4 w-4 mr-1" />
@@ -105,7 +111,7 @@ export function ProjectsSection({ className }: { className?: string }) {
                     checked={hideNotStarted}
                     onCheckedChange={setHideNotStarted}
                   />
-                  {projectsView === "kanban" && (
+                  {projectsView !== "table" && (
                     <FilterToggle
                       id="hide-done"
                       label="Hide done"
@@ -151,8 +157,11 @@ export function ProjectsSection({ className }: { className?: string }) {
           </>
         }
       >
+        <TabsContent value="shelves" className="mt-0">
+          <ProjectKanban layout="shelves" projects={visibleProjects} isLoading={isLoading} />
+        </TabsContent>
         <TabsContent value="kanban" className="mt-0">
-          <ProjectKanban projects={visibleProjects} isLoading={isLoading} />
+          <ProjectKanban layout="kanban" projects={visibleProjects} isLoading={isLoading} />
         </TabsContent>
         <TabsContent value="table" className="mt-0">
           <ProjectTable projects={visibleProjects} isLoading={isLoading} />

@@ -43,6 +43,7 @@ function CardActions({
   const updateProject = useUpdateProject();
   const buttonClass = cn(
     "h-7 w-7",
+    size === "compact" && "bg-card",
     size === "feature" &&
       "text-feature-foreground hover:bg-white/15 hover:text-feature-foreground dark:hover:bg-white/15",
   );
@@ -197,14 +198,16 @@ function ProjectCardBody({ project, size }: { project: Project; size: KanbanCard
 
   if (size === "compact") {
     return (
-      <div className="flex items-center gap-3 py-3 pl-3 pr-10">
+      // No room reserved on the right for the hover-only edit button (it sits over the text),
+      // except on phones, where its buttons are always showing.
+      <div className="flex items-center gap-3 p-3 max-sm:pr-16">
         {project.icon && (
           <span aria-hidden className="text-2xl leading-none">
             {project.icon}
           </span>
         )}
         <div className="min-w-0 flex-1" title={description}>
-          <CardTitle project={project} className="truncate text-base leading-snug" />
+          <CardTitle project={project} className="truncate text-[15px] leading-snug" />
           <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <StatusDot status={project.status} />
             {project.status}

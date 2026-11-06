@@ -10,12 +10,19 @@ function shelfGridClass(priority: ProjectPriority, count: number) {
   if (priority === 'Now') {
     // A lone Now project takes the whole shelf; more than that share it.
     if (count <= 1) return 'grid-cols-1';
-    if (count === 2) return 'grid-cols-1 lg:grid-cols-2';
-    return 'grid-cols-1 lg:grid-cols-2 xl:grid-cols-3';
+    if (count === 2) return 'grid-cols-1 @3xl:grid-cols-2';
+    return 'grid-cols-1 @3xl:grid-cols-2 @5xl:grid-cols-3';
   }
-  return priority === 'Next'
-    ? 'grid-cols-[repeat(auto-fill,minmax(min(100%,17rem),1fr))]'
-    : 'grid-cols-[repeat(auto-fill,minmax(min(100%,14rem),1fr))]';
+  // A full row stretches to fill the width, for instance when the Seeds rail is hidden.
+  // One or two cards keep their normal size instead of ballooning across the page.
+  if (priority === 'Next') {
+    return count >= 3
+      ? 'grid-cols-[repeat(auto-fit,minmax(min(100%,15rem),1fr))]'
+      : 'grid-cols-[repeat(auto-fill,minmax(min(100%,15rem),1fr))]';
+  }
+  return count >= 3
+    ? 'grid-cols-[repeat(auto-fit,minmax(min(100%,12rem),1fr))]'
+    : 'grid-cols-[repeat(auto-fill,minmax(min(100%,12rem),1fr))]';
 }
 
 interface KanbanShelfProps {

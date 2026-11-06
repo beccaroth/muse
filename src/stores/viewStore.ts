@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-type ViewType = 'table' | 'kanban';
+export type ProjectsView = 'shelves' | 'kanban' | 'table';
 type KanbanGroupBy = 'priority' | 'status';
 type MobileDashboardTab = 'projects' | 'seeds';
 export type TaskProjectSortOption = 'name-asc' | 'name-desc' | 'newest' | 'oldest';
@@ -52,8 +52,8 @@ const getInitialTaskProjectSort = (): TaskProjectSortOption => {
 };
 
 interface ViewState {
-  projectsView: ViewType;
-  setProjectsView: (view: ViewType) => void;
+  projectsView: ProjectsView;
+  setProjectsView: (view: ProjectsView) => void;
   kanbanGroupBy: KanbanGroupBy;
   setKanbanGroupBy: (groupBy: KanbanGroupBy) => void;
   showDoneColumn: boolean;
@@ -91,7 +91,7 @@ interface ViewState {
 }
 
 export const useViewStore = create<ViewState>((set) => ({
-  projectsView: 'kanban',
+  projectsView: 'shelves',
   setProjectsView: (view) => set({ projectsView: view }),
   kanbanGroupBy: 'priority',
   setKanbanGroupBy: (groupBy) => set({ kanbanGroupBy: groupBy }),

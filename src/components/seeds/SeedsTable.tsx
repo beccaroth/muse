@@ -24,7 +24,7 @@ interface SeedsTableProps {
   isLoading: boolean;
 }
 
-function ActionsCell({ seed }: { seed: Seed }) {
+export function SeedActionsMenu({ seed }: { seed: Seed }) {
   const { setEditingSeed } = useViewStore();
   const deleteSeed = useDeleteSeed();
   const updateSeed = useUpdateSeed();
@@ -34,7 +34,7 @@ function ActionsCell({ seed }: { seed: Seed }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-8 w-8">
+        <Button variant="ghost" size="icon" className="h-8 w-8" aria-label={`Actions for ${seed.title}`}>
           <MoreHorizontal className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
@@ -141,7 +141,7 @@ const columns: ColumnDef<Seed>[] = [
   {
     id: 'actions',
     meta: { className: 'w-[10%]' },
-    cell: ({ row }) => <ActionsCell seed={row.original} />,
+    cell: ({ row }) => <SeedActionsMenu seed={row.original} />,
     enableSorting: false,
   },
 ];
