@@ -35,8 +35,10 @@ function sortByCardOrder(projects: Project[], order: string[] | undefined): Proj
 export function ProjectKanban({ projects, isLoading, layout }: ProjectKanbanProps) {
   const [activeProject, setActiveProject] = useState<Project | null>(null);
   const updateProject = useUpdateProject();
-  const { kanbanGroupBy, showDoneColumn, hideOnHold, hideNotStarted, kanbanCardOrder, setKanbanCardOrder } = useViewStore();
+  const { kanbanGroupBy, showDoneColumn, hideOnHold, hideNotStarted, kanbanCardOrder, setKanbanCardOrder, kanbanReversed } = useViewStore();
   const groupBy = layout === 'shelves' ? 'priority' : kanbanGroupBy;
+  const inColumnOrder = <T,>(columns: readonly T[]) =>
+    kanbanReversed ? [...columns].reverse() : columns;
 
   // Configure sensors with activation constraint so clicks work
   const sensors = useSensors(
@@ -182,7 +184,7 @@ export function ProjectKanban({ projects, isLoading, layout }: ProjectKanbanProp
           </div>
         ) : groupBy === 'priority' ? (
           <div className="grid grid-cols-1 gap-4 @xl:grid-cols-2 @3xl:grid-cols-3">
-            {PROJECT_PRIORITIES.map((priority) => (
+            {inColumnOrder(PROJECT_PRIORITIES).map((priority) => (
               <KanbanColumn
                 key={priority}
                 title={priority}
@@ -193,7 +195,7 @@ export function ProjectKanban({ projects, isLoading, layout }: ProjectKanbanProp
           </div>
         ) : (
           <div className={`grid grid-cols-1 gap-4 @xl:grid-cols-2 @3xl:grid-cols-3 ${statusesToShow.length >= 4 ? '@5xl:grid-cols-4' : ''}`}>
-            {statusesToShow.map((status) => (
+            {inColumnOrder(statusesToShow).map((status) => (
               <KanbanColumn
                 key={status}
                 title={status}

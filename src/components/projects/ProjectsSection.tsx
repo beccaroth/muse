@@ -30,6 +30,8 @@ export function ProjectsSection({ className }: { className?: string }) {
     setProjectsView,
     kanbanGroupBy,
     setKanbanGroupBy,
+    kanbanReversed,
+    setKanbanReversed,
     showDoneColumn,
     setShowDoneColumn,
     hideOnHold,
@@ -145,6 +147,15 @@ export function ProjectsSection({ className }: { className?: string }) {
                           </button>
                         ))}
                       </div>
+                    </div>
+                    <Separator />
+                    <div className="p-1.5">
+                      <FilterToggle
+                        id="reverse-columns"
+                        label="Reverse columns"
+                        checked={kanbanReversed}
+                        onCheckedChange={setKanbanReversed}
+                      />
                     </div>
                   </>
                 )}
